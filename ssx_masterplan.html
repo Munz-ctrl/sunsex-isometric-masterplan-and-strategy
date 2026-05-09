@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUNSEX — Master Document</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --black: #080808; --white: #f0ede6; --gold: #c8a84b;
+    --dim: #111; --mid: #1a1a1a; --muted: #666; --accent: #e8d5a0;
+    --green: #4ade80; --red: #f87171; --blue: #60a5fa;
+  }
+  body { background: var(--black); color: var(--white); font-family: 'Syne', sans-serif; font-size: 13px; line-height: 1.5; }
+
+  .header { padding: 40px 32px 24px; border-bottom: 1px solid #1f1f1f; display: flex; justify-content: space-between; align-items: flex-end; }
+  .brand { font-size: 48px; font-weight: 800; letter-spacing: -3px; line-height: 1; }
+  .brand span { color: var(--gold); }
+  .subtitle { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 3px; text-align: right; }
+
+  .tabs { display: flex; border-bottom: 1px solid #1f1f1f; background: var(--black); position: sticky; top: 0; z-index: 10; overflow-x: auto; }
+  .tab { padding: 14px 16px; font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .tab:hover { color: var(--white); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .content { display: none; padding: 32px; max-width: 960px; }
+  .content.active { display: block; }
+
+  .section-title { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #1f1f1f; margin-top: 24px; }
+  .section-title:first-child { margin-top: 0; }
+
+  .block { background: var(--dim); border: 1px solid #1f1f1f; border-radius: 4px; padding: 20px; margin-bottom: 14px; }
+  .block-title { font-weight: 800; font-size: 15px; margin-bottom: 8px; }
+  .block p { color: #999; font-size: 12px; line-height: 1.7; }
+  .block p b { color: var(--white); font-weight: 600; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+
+  .tag { display: inline-block; font-family: 'Space Mono', monospace; font-size: 9px; padding: 3px 8px; border-radius: 2px; letter-spacing: 1px; margin: 2px; }
+  .tag-green { background: #0f2a1a; color: #4ade80; border: 1px solid #166534; }
+  .tag-yellow { background: #2a1f00; color: var(--gold); border: 1px solid #5a3e00; }
+  .tag-blue { background: #0a1520; color: #60a5fa; border: 1px solid #1e3a5f; }
+  .tag-red { background: #1a0a0a; color: #f87171; border: 1px solid #7f1d1d; }
+
+  .warning { background: #130d00; border: 1px solid #5a3e00; border-radius: 4px; padding: 14px 16px; font-size: 12px; color: #c8a84b; margin: 14px 0; line-height: 1.6; }
+  .info { background: #0a1520; border: 1px solid #1e3a5f; border-radius: 4px; padding: 14px 16px; font-size: 12px; color: #60a5fa; margin: 14px 0; line-height: 1.6; }
+
+  .rule-row { display: grid; grid-template-columns: 130px 1fr 80px; align-items: start; padding: 12px 0; border-bottom: 1px solid #111; gap: 14px; }
+  .rule-key { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); padding-top: 2px; }
+  .rule-val { color: #ccc; font-size: 12px; line-height: 1.7; }
+  .rule-status { font-family: 'Space Mono', monospace; font-size: 9px; text-align: right; padding-top: 3px; }
+  .s-locked { color: var(--green); }
+  .s-open { color: var(--blue); }
+  .s-tbd { color: var(--red); }
+
+  .prompt-box { background: #0a0a0a; border: 1px solid #2a2a2a; border-left: 3px solid var(--gold); border-radius: 4px; padding: 24px; margin-bottom: 20px; position: relative; }
+  .prompt-box.blue { border-left-color: var(--blue); }
+  .prompt-box.green { border-left-color: var(--green); }
+  .prompt-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 3px; margin-bottom: 16px; display: block; color: var(--gold); }
+  .prompt-label.blue { color: var(--blue); }
+  .prompt-label.green { color: var(--green); }
+  .prompt-code { font-family: 'Space Mono', monospace; font-size: 11px; color: #ccc; line-height: 2; white-space: pre-wrap; }
+  .c-var { color: var(--gold); }
+  .c-locked { color: var(--green); }
+  .c-comment { color: #444; }
+  .c-inject { color: var(--blue); }
+
+  .copy-btn { position: absolute; top: 16px; right: 16px; font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; padding: 5px 10px; border: 1px solid #333; border-radius: 2px; background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+  .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+  .phase { display: grid; grid-template-columns: 70px 1fr; border-bottom: 1px solid #111; }
+  .phase-num { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: #222; padding: 20px 16px 20px 0; border-right: 1px solid #1a1a1a; text-align: right; }
+  .phase.now .phase-num { color: var(--gold); }
+  .phase-body { padding: 20px; }
+  .phase-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .phase-title { font-size: 15px; font-weight: 800; margin: 4px 0 10px; }
+  .phase-items { color: #888; font-size: 12px; }
+  .phase-items li { list-style: none; padding: 2px 0; }
+  .phase-items li::before { content: '→ '; color: var(--gold); }
+
+  .platform-card { background: var(--dim); border: 1px solid #1f1f1f; border-radius: 4px; padding: 20px; position: relative; margin-bottom: 14px; }
+  .platform-card.winner { border-color: var(--gold); }
+  .platform-card.winner::after { content: 'RECOMMENDED'; position: absolute; top: 12px; right: 12px; font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 2px; color: var(--gold); background: #2a1f00; padding: 2px 8px; border-radius: 2px; }
+  .platform-title { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
+  .platform-desc { font-size: 11px; color: #888; margin-bottom: 14px; line-height: 1.6; }
+  .pro-con { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .col-title { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; margin-bottom: 6px; }
+  .pros .col-title { color: var(--green); }
+  .cons .col-title { color: var(--red); }
+  .pro-con li { list-style: none; color: #999; padding: 2px 0; font-size: 11px; }
+  .pro-con li::before { content: '— '; color: #444; }
+  .verdict { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); margin-top: 14px; font-family: 'Space Mono', monospace; }
+
+  .ar-note { background: #080e16; border: 1px solid #1e3a5f; border-left: 3px solid var(--blue); border-radius: 4px; padding: 20px; margin: 14px 0; }
+  .ar-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 3px; color: var(--blue); margin-bottom: 10px; }
+  .ar-note h3 { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+  .ar-note p { color: #7a9fc0; font-size: 12px; line-height: 1.7; }
+
+  .tool-row { display: grid; grid-template-columns: 140px 1fr 80px; align-items: center; padding: 12px 0; border-bottom: 1px solid #111; gap: 14px; }
+  .tool-name { font-weight: 600; font-size: 13px; }
+  .tool-use { color: #888; font-size: 11px; }
+  .tool-cost { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; }
+
+  .context-block { background: #0a0a0a; border: 1px solid #222; border-radius: 4px; padding: 18px; margin-bottom: 14px; font-family: 'Space Mono', monospace; font-size: 11px; color: #888; line-height: 1.8; white-space: pre-wrap; }
+  .ctx-label { color: var(--gold); font-size: 9px; letter-spacing: 3px; display: block; margin-bottom: 10px; }
+
+  .week-row { display: grid; grid-template-columns: 60px 1fr; border-bottom: 1px solid #111; }
+  .week-day { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); padding: 14px 14px 14px 0; border-right: 1px solid #1a1a1a; text-align: right; }
+  .week-tasks { padding: 14px; color: #999; font-size: 12px; line-height: 1.7; }
+  .week-tasks b { color: var(--white); font-weight: 600; }
+
+  .pitch-block { background: var(--dim); border: 1px solid #1f1f1f; border-left: 3px solid var(--gold); border-radius: 4px; padding: 18px; margin-bottom: 14px; }
+  .pitch-block h3 { font-size: 13px; font-weight: 800; margin-bottom: 8px; color: var(--gold); font-family: 'Space Mono', monospace; letter-spacing: 2px; }
+  .pitch-block p { color: #999; font-size: 12px; line-height: 1.7; }
+
+  .stat-box { text-align: center; padding: 24px 16px; background: var(--dim); border: 1px solid #1f1f1f; border-radius: 4px; }
+  .stat-num { font-size: 32px; font-weight: 800; color: var(--gold); font-family: 'Space Mono', monospace; line-height: 1; }
+  .stat-label { font-size: 9px; color: #666; margin-top: 6px; font-family: 'Space Mono', monospace; letter-spacing: 2px; text-transform: uppercase; }
+
+  .scene-card { background: var(--dim); border: 1px solid #1f1f1f; border-radius: 4px; padding: 16px; }
+  .scene-name { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--gold); letter-spacing: 2px; margin-bottom: 10px; word-break: break-all; }
+  .scene-tags { margin-bottom: 10px; }
+  .scene-notes { color: #777; font-size: 11px; line-height: 1.7; }
+
+  .flow-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .flow-node { background: #111; border: 1px solid #2a2a2a; border-radius: 3px; padding: 8px 14px; font-family: 'Space Mono', monospace; font-size: 10px; color: #ccc; white-space: nowrap; }
+  .flow-arrow { color: var(--gold); font-size: 16px; flex-shrink: 0; }
+
+  .decision-row { display: grid; grid-template-columns: 160px 1fr 80px; padding: 10px 0; border-bottom: 1px solid #111; gap: 14px; align-items: start; }
+  .decision-date { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); }
+  .decision-text { font-size: 12px; color: #ccc; line-height: 1.6; }
+  .decision-status { font-family: 'Space Mono', monospace; font-size: 9px; text-align: right; }
+
+  .var-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .var-table td { padding: 8px 12px; border-bottom: 1px solid #111; font-size: 12px; vertical-align: top; }
+  .var-table td:first-child { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); width: 180px; }
+  .var-table td:last-child { color: #888; }
+
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: #333; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="brand">SUN<span>SEX</span></div>
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:#444;margin-top:6px;letter-spacing:4px;">MASTER DOCUMENT — v2.0 — MAY 2026</div>
+  </div>
+  <div class="subtitle">2 years in<br>pipeline is being built</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('overview',this)">00 Overview</div>
+  <div class="tab" onclick="show('bible',this)">01 Visual Bible</div>
+  <div class="tab" onclick="show('master',this)">02 Master Prompt</div>
+  <div class="tab" onclick="show('nb',this)">03 NB Prompts</div>
+  <div class="tab" onclick="show('registry',this)">04 Scene Registry</div>
+  <div class="tab" onclick="show('platform',this)">05 Platform</div>
+  <div class="tab" onclick="show('roadmap',this)">06 Roadmap</div>
+  <div class="tab" onclick="show('ar',this)">07 AR System</div>
+  <div class="tab" onclick="show('tools',this)">08 Tools</div>
+  <div class="tab" onclick="show('claude',this)">09 Claude Setup</div>
+  <div class="tab" onclick="show('business',this)">10 Business</div>
+  <div class="tab" onclick="show('log',this)">11 Session Log</div>
+</div>
+
+
+<!-- 00 OVERVIEW -->
+<div id="overview" class="content active">
+  <div class="section-title">What Sunsex actually is</div>
+  <div class="grid-2">
+    <div class="block">
+      <div class="block-title">The Core Loop</div>
+      <p>You live → you capture (photo / video / location) → the system translates that into a cinematic isometric scene → that scene becomes interactive content you own, share, and inhabit. Life is the game engine.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">What Makes It Defensible</div>
+      <p>It's not AI art. It's not a game. It's not a journal app. It lives in the gap between all three. The consistency of the visual system — the "Sunsex look" — IS the product. The pipeline is the moat.</p>
+    </div>
+  </div>
+
+  <div class="section-title">The 3 things that must always be true</div>
+  <div class="grid-3">
+    <div class="block">
+      <div class="block-title">01 — Identity fidelity</div>
+      <p>The player is always recognizably themselves. Clothing, posture, setting. Not a cartoon. Not a fantasy avatar.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">02 — Scene coherence</div>
+      <p>Every output belongs to the same world. Same camera logic. Same light. Same spatial grammar. No exceptions.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">03 — Game readability</div>
+      <p>Any scene must feel like a playable level. Entry point. Primary zone. Hierarchy. Not just a pretty picture.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Core product layers</div>
+  <div class="grid-3">
+    <div class="block">
+      <div class="block-title">A — Map (World Layer)</div>
+      <p>Global, explorable Earth. Players = real people. Locations = real places. The world already exists — we render it.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">B — Player (Identity Layer)</div>
+      <p>Persistent avatar identity. Evolves visually and functionally as the player lives. Clothing, location, activity all feed it.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">C — Memory Engine (CORE)</div>
+      <p>Real actions → become scenes. Scenes = the actual content of the system. This is what makes Sunsex real.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Genre definition</div>
+  <div class="block">
+    <div class="block-title">Reflective Realism — a new genre</div>
+    <p>Part video game. Part storytelling tool. Part content creation engine. Inspired by drone photography, iPhone captures, and AAA open-world maps. The Sims meets GTA V exploration — but grounded in real locations, real actions, real identity, and a signature isometric perspective.</p>
+    <br>
+    <span class="tag tag-yellow">life simulation</span>
+    <span class="tag tag-yellow">visual storytelling</span>
+    <span class="tag tag-yellow">ambient RPG</span>
+    <span class="tag tag-blue">web-based first</span>
+    <span class="tag tag-green">real identity</span>
+    <span class="tag tag-green">real locations</span>
+  </div>
+
+  <div class="warning">⚠ The trap after 2 years of building chaotically: piling on features before the core visual pipeline is locked. The ONE thing that must work perfectly before anything else is the photo → scene translation. Everything else is downstream of cracking that.</div>
+
+  <div class="section-title">Definition of "done" for Phase 1</div>
+  <div class="block">
+    <div class="block-title">The 60-second demo test</div>
+    <p>Someone hands you a phone photo. You run the pipeline. You output a Sunsex scene that makes them say: "that's exactly me, but game." That is the bar.</p>
+    <br>
+    <span class="tag tag-green">identity preserved</span>
+    <span class="tag tag-green">camera locked</span>
+    <span class="tag tag-green">scene feels playable</span>
+    <span class="tag tag-yellow">consistent style</span>
+    <span class="tag tag-yellow">shareable format</span>
+  </div>
+
+  <div class="section-title">Core mental model</div>
+  <div class="block" style="text-align:center;padding:32px">
+    <div style="font-family:'Space Mono',monospace;font-size:16px;color:var(--gold);letter-spacing:4px">LIFE → PROCESS → SCENE → SYSTEM</div>
+  </div>
+</div>
+
+
+<!-- 01 VISUAL BIBLE -->
+<div id="bible" class="content">
+  <div class="section-title">Camera system — locked</div>
+  <div class="rule-row"><div class="rule-key">H. ROTATION</div><div class="rule-val">45° left or right. Scene corner faces viewer. Two faces visible: front + one side.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">V. TILT</div><div class="rule-val">-33° downward. NOT -45°. Exposes more front face than top. You see walls, not just roof. Critical distinction from standard isometric.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">FOV</div><div class="rule-val">As flat/orthographic as possible. In 3D: 200–400mm+ equivalent. Camera pulled far back. No wide-angle barrel distortion. Lines stay parallel. No convergence.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">VERTICALS</div><div class="rule-val">Vertical lines must stay vertical. No leaning, no keystoning. The clearest signal of the SSX camera. Non-negotiable.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">FEEL</div><div class="rule-val">"Flattened perspective realism" — orthographic influence but not fully flat. Slight depth still reads, but controlled and clean.</div><div class="rule-status s-locked">LOCKED</div></div>
+
+  <div class="section-title">Lighting rules — locked</div>
+  <div class="rule-row"><div class="rule-key">KEY LIGHT</div><div class="rule-val">Soft, diffused, top-left direction. Natural ambient quality — as if shot on iPhone outdoors in overcast conditions.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">FILL</div><div class="rule-val">Gentle overcast-quality fill. No hard second light. Shadows soft and directional.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">SHADOWS</div><div class="rule-val">Present but soft. Ground shadow under all figures is essential for spatial grounding. Never harsh or dramatic.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">MOOD</div><div class="rule-val">Neutral to slightly warm. Never cold/clinical. Never golden hour or night — unless scene demands it explicitly.</div><div class="rule-status s-open">PER SCENE</div></div>
+
+  <div class="section-title">Materials + surfaces — locked</div>
+  <div class="rule-row"><div class="rule-key">BASE</div><div class="rule-val">Photoreal. Real-world textures: concrete, asphalt, wood, fabric, skin. Not illustrated. Not stylized. Not cel-shaded.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">SIMPLIFY</div><div class="rule-val">Slightly cleaned. Remove noise, grain, compression artifacts. Keep the material — remove the mess.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">SURFACES</div><div class="rule-val">Concrete, raw floors, wet asphalt, grass, stone, fabric, ocean — all valid. Surfaces define world type.</div><div class="rule-status s-open">OPEN</div></div>
+
+  <div class="section-title">Scene structure — every output must have all four</div>
+  <div class="grid-2" style="margin-top:12px">
+    <div class="block"><div class="block-title">01 Entry Point</div><p>Where the eye enters the scene. Usually a corner, doorway, path, or edge element. Implicit but essential — without it, scenes feel disorienting.</p></div>
+    <div class="block"><div class="block-title">02 Primary Zone</div><p>The main subject or action. Player character, key object, or focal event. Sits in mid-to-foreground. Should be identifiable within 1 second.</p></div>
+    <div class="block"><div class="block-title">03 Secondary Detail</div><p>Supporting environment. Objects, furniture, architecture that give the scene its identity and world-building depth.</p></div>
+    <div class="block"><div class="block-title">04 Background Context</div><p>Walls, sky, foliage, distant architecture. Sets mood and world scale. Can be simple — just needs to exist.</p></div>
+  </div>
+
+  <div class="section-title">Character rules — from approved stills</div>
+  <div class="rule-row"><div class="rule-key">SCALE</div><div class="rule-val">Figure is small relative to environment. World-scale matters. Character is never the full frame — they are one element in a larger scene.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">IDENTITY</div><div class="rule-val">Clothing, hair, posture — preserved exactly from source photo. This is not a stylized avatar. It is the actual person.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">PLACEMENT</div><div class="rule-val">Usually lower-left to center of frame. Grounded with shadow beneath. Never floating or without spatial anchor.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">BODY ANGLE</div><div class="rule-val">Facing into the scene. Slightly turned. Back-facing or side-on reads naturally in isometric. Front-facing for hero shots only.</div><div class="rule-status s-open">PER SCENE</div></div>
+
+  <div class="section-title">The SSX Cube — locked game object</div>
+  <div class="block" style="border-color:var(--gold)">
+    <div class="block-title" style="color:var(--gold)">Silver Cube — Recurring Collectible Anchor</div>
+    <p>A matte silver/concrete cube appears as a persistent element across multiple approved stills (munz_cube, isoFS scenes). It functions as an in-world collectible or interaction trigger. Small (~30cm), grounded, positioned near the player. First confirmed SSX game object. Its presence signals: this is a game world, not just a photo.</p>
+    <br>
+    <span class="tag tag-yellow">matte silver / concrete</span>
+    <span class="tag tag-yellow">~30cm cube</span>
+    <span class="tag tag-yellow">near player</span>
+    <span class="tag tag-green">game object confirmed</span>
+    <span class="tag tag-green">optional — include when appropriate</span>
+  </div>
+
+  <div class="section-title">HUD overlay spec — every final output</div>
+  <div class="block">
+    <div class="block-title">SSX UI System — monospace, bottom-left corner</div>
+    <p style="font-family:'Space Mono',monospace;font-size:11px;color:#555;margin-top:10px;line-height:2.2">
+      sunsex isometric v0.01<br>
+      coord. [<span style="color:var(--gold)">XX.XXX, XXX</span>]<br>
+      memory: <span style="color:var(--gold)">[scene-id-XXXXX]</span>
+    </p>
+    <br>
+    <p>White or gold monospace text. 10–12px. Bottom-left corner. 16px padding from edge. Opacity 60–80%. Apply in Photoshop as text layer. This is what converts an AI image into an SSX output. Always include on final renders.</p>
+  </div>
+</div>
+
+
+<!-- 02 MASTER PROMPT -->
+<div id="master" class="content">
+  <div class="section-title">Master prompt v1 — universal SSX scene generator</div>
+
+  <div class="info">📌 Base formula for every SSX scene. Variables in [BRACKETS] are swapped per scene. Green text is locked — do not change it. This prompt works with Midjourney v6, Flux Dev, and most modern image gen tools.</div>
+
+  <div class="prompt-box">
+    <span class="prompt-label">SSX MASTER PROMPT v1.0</span>
+    <button class="copy-btn" onclick="copyPrompt('mp')">COPY</button>
+    <div class="prompt-code" id="mp"><span class="c-comment">// ── SCENE IDENTITY ─────────────────────────────────────────</span>
+<span class="c-var">[SCENE_TYPE]</span> scene, isometric reconstruction, flattened perspective realism,
+
+<span class="c-comment">// ── SUBJECT ────────────────────────────────────────────────</span>
+<span class="c-var">[SUBJECT — clothing, skin, hair, build — be specific]</span>,
+identity preserved exactly — clothing, hair, posture faithful,
+figure small relative to environment, grounded with soft shadow beneath,
+facing <span class="c-var">[FACING_DIRECTION]</span>,
+
+<span class="c-comment">// ── ENVIRONMENT ────────────────────────────────────────────</span>
+<span class="c-var">[ENVIRONMENT DESCRIPTION — floor, walls, ceiling, key architecture]</span>,
+entry point at <span class="c-var">[ENTRY]</span>,
+primary zone: <span class="c-var">[PRIMARY]</span>,
+secondary detail: <span class="c-var">[SECONDARY_OBJECTS]</span>,
+background: <span class="c-var">[BACKGROUND]</span>,
+
+<span class="c-comment">// ── CAMERA — LOCKED ────────────────────────────────────────</span>
+<span class="c-locked">camera: isometric, 45 degree horizontal rotation,
+33 degree downward vertical tilt — more front face visible than top,
+ultra-compressed telephoto lens, 300mm equivalent focal length,
+no barrel distortion, no perspective convergence,
+vertical lines stay perfectly vertical, parallel lines remain parallel,
+orthographic influence — high FOV flattened feel,</span>
+
+<span class="c-comment">// ── LIGHTING — LOCKED ──────────────────────────────────────</span>
+<span class="c-locked">soft diffused natural light, gentle top-left key light,
+overcast ambient fill, no harsh shadows,
+soft ground shadows beneath all objects and figures,
+iPhone photography realism, slight cinematic grade, neutral-warm tone,</span>
+
+<span class="c-comment">// ── MATERIALS — LOCKED ─────────────────────────────────────</span>
+<span class="c-locked">photoreal surfaces, slightly simplified and cleaned textures,
+real-world materials — concrete / wood / fabric / asphalt / stone,
+no stylization, no illustration, no painterly rendering,</span>
+
+<span class="c-comment">// ── COMPOSITION — LOCKED ───────────────────────────────────</span>
+<span class="c-locked">playable level composition, clear spatial hierarchy,
+foreground anchor, mid-ground action, background context,
+cinematic still — frozen moment, game-level readability,</span>
+
+<span class="c-comment">// ── OPTIONAL ───────────────────────────────────────────────</span>
+<span class="c-var">[optional: small matte silver cube near player — SSX game object]</span>
+
+<span class="c-comment">// ── QUALITY ────────────────────────────────────────────────</span>
+<span class="c-locked">photorealistic, ultra-detailed, architectural visualization quality,
+drone photography influence, AAA isometric game environment, 8k</span>
+
+<span class="c-comment">// ── FORMAT ─────────────────────────────────────────────────</span>
+<span class="c-var">--ar 9:16</span> <span class="c-locked">--style raw --v 6</span>   <span class="c-comment">// Midjourney</span>
+<span class="c-comment">// Flux: aspect_ratio: 9:16, steps: 40, guidance: 4.5</span></div>
+  </div>
+
+  <div class="section-title">Variable reference</div>
+  <div class="block" style="padding:0">
+    <table class="var-table">
+      <tr><td>[SCENE_TYPE]</td><td>interior / exterior / urban / nature / abstract / mixed</td></tr>
+      <tr><td>[SUBJECT]</td><td>Specific: "Black man, white tank top, khaki cargo pants, afro, athletic build." Never generic.</td></tr>
+      <tr><td>[FACING_DIRECTION]</td><td>away from camera / into scene / toward left wall / three-quarter right</td></tr>
+      <tr><td>[ENVIRONMENT]</td><td>Full description of space — floor material, wall material, ceiling if visible, key architecture</td></tr>
+      <tr><td>[ENTRY]</td><td>"lower-left corner" / "foreground staircase" / "open doorway left" / "path from bottom edge"</td></tr>
+      <tr><td>[PRIMARY]</td><td>"center-left, player + work table" / "mid-ground, player standing on rock island"</td></tr>
+      <tr><td>[SECONDARY_OBJECTS]</td><td>"DJ equipment, monitors, cork board" / "penguins on boulders" / "silver SSX cube"</td></tr>
+      <tr><td>[BACKGROUND]</td><td>"white wall with abstract painting" / "turquoise ocean + rock formations" / "grey concrete column"</td></tr>
+    </table>
+  </div>
+
+  <div class="section-title">Filled example — Bruno concrete yard</div>
+  <div class="prompt-box green">
+    <span class="prompt-label green">EXAMPLE OUTPUT — MATCHES ssx_iso__bruno_concrete_yard</span>
+    <div class="prompt-code">exterior concrete courtyard, isometric reconstruction, flattened perspective realism,
+
+Black man, shirtless, black wide-leg sweatpants, short hair, athletic build,
+identity preserved — posture faithful, slight upward gaze,
+figure small relative to environment, soft shadow beneath feet,
+facing slightly left, three-quarter turn,
+
+raw weathered concrete yard, cracked floor with worn slab marks,
+grey concrete column upper right, dust haze in air,
+entry point at lower-left corner,
+primary zone: center-right — lone figure in open yard,
+secondary detail: worn concrete surface marks, faint dust,
+background: grey concrete wall, dim corner,
+
+camera: isometric, 45 degree horizontal rotation, 33 degree downward tilt,
+300mm telephoto compression, no distortion, vertical lines stay vertical,
+
+soft diffused natural overcast light, gentle top-left key,
+no harsh shadows, neutral-cool tone, industrial quality,
+
+photoreal concrete textures, real grit and wear preserved,
+no stylization,
+
+playable level layout, isolated figure in open world,
+cinematic still, frozen moment,
+
+photorealistic, ultra-detailed, 8k
+--ar 9:16 --style raw --v 6</div>
+  </div>
+</div>
+
+
+<!-- 03 NB PROMPTS -->
+<div id="nb" class="content">
+  <div class="section-title">Nano Banana prompt system — two workflows</div>
+
+  <div class="warning">⚠ "Nano Banana" tool not yet confirmed. These prompts are written tool-agnostically and work with Midjourney, Flux Dev, GPT-4o image edit, and ComfyUI. Confirm your tool and I'll rewrite with exact syntax and parameters for it.</div>
+
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="block">
+      <div class="block-title">Prompt A — Image(s) → ISO</div>
+      <p>Give it one or more real photos. It reads the space and people, and reconstructs everything as a Sunsex isometric scene. No sketch needed. Faster, less controlled.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">Prompt B — Sketch + Image → ISO</div>
+      <p>Give it a layout sketch (your camera angle + object positions) AND real photos of the space (your textures + materials). Merges both into one controlled render. More work, far more control.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Prompt A — image(s) → isometric render</div>
+
+  <div class="prompt-box blue">
+    <span class="prompt-label blue">SSX — NB PROMPT A v1.0 — IMAGE(S) → ISOMETRIC RENDER</span>
+    <button class="copy-btn" onclick="copyPrompt('nb_a')">COPY</button>
+    <div class="prompt-code" id="nb_a"><span class="c-comment">// ATTACH YOUR PHOTO(S) AS IMAGE REFERENCE BEFORE THIS PROMPT</span>
+<span class="c-comment">// MJ: paste image URL first, --iw 1.5, --cref for character ref</span>
+<span class="c-comment">// Flux: img2img mode, denoising strength 0.55–0.65</span>
+
+<span class="c-inject">[ATTACH: real photo(s) of the space and/or person]</span>
+
+Isometric reconstruction of the attached scene.
+Preserve all subjects, objects, spatial relationships, and identity exactly.
+Do not invent new elements — reconstruct only what exists in the reference.
+
+<span class="c-locked">Camera transformation:
+Rotate scene to isometric view — 45 degrees horizontal, 33 degrees vertical tilt down.
+Apply telephoto compression — 300mm equivalent focal length.
+Eliminate wide-angle distortion. Vertical lines become perfectly vertical.
+No perspective convergence. Lines stay parallel. Orthographic influence.
+
+Lighting transformation:
+Convert to soft diffused natural top-left key, overcast ambient fill.
+Remove harsh shadows. Add soft ground shadows beneath figures and objects.
+Slight cinematic grade, neutral-warm tone. iPhone photography realism.
+
+Material treatment:
+Keep all surfaces photoreal. Slightly clean and sharpen textures.
+Remove film grain, compression artifacts, motion blur.
+Preserve material identity — concrete stays concrete, fabric stays fabric.
+
+Scene structure:
+Compose as a playable level: entry point, primary zone, secondary detail, background.
+Figure(s) in mid-to-foreground, grounded with shadow beneath.
+Scene reads as a game environment frozen in time.</span>
+
+<span class="c-locked">Photorealistic isometric render. Ultra-detailed. 8k.
+Architectural visualization grade. Drone photography influence.
+AAA isometric game environment.</span>
+
+<span class="c-var">--ar 9:16 --style raw --v 6 --iw 1.5</span></div>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">Prompt B — sketch + space photos → controlled isometric render</div>
+
+  <div class="block" style="margin-bottom:16px">
+    <div class="block-title">Why Prompt B is more powerful</div>
+    <p>Prompt A lets the AI guess the camera angle from your photos. Prompt B locks the camera angle, object positions, and spatial layout via your sketch — then fills in photoreal detail from your reference photos. The sketch controls the architecture. The photos provide the skin. This is the professional pipeline.</p>
+  </div>
+
+  <div class="prompt-box green">
+    <span class="prompt-label green">SSX — NB PROMPT B v1.0 — SKETCH + IMAGES → CONTROLLED ISOMETRIC RENDER</span>
+    <button class="copy-btn" onclick="copyPrompt('nb_b')">COPY</button>
+    <div class="prompt-code" id="nb_b"><span class="c-comment">// ATTACH BOTH REFERENCES:</span>
+<span class="c-inject">[REFERENCE A: isometric layout sketch — camera angle + object positions]</span>
+<span class="c-inject">[REFERENCE B: real photos of the space — textures, materials, lighting, detail]</span>
+
+Render the space shown in Reference B
+using the layout, camera angle, and object placement from Reference A
+as the controlling structure.
+
+Reference A controls:
+- Camera angle and elevation (match exactly)
+- Object positions and spatial layout
+- Scene boundaries and frame crop
+- Player / figure placement and scale
+- Entry and exit flow through the space
+
+Reference B provides:
+- All surface textures and materials (replicate exactly)
+- Lighting quality, color, and atmosphere
+- Object detail, finish, color, and wear
+- Environmental mood and tone
+- Spatial authenticity — what the place actually looks like
+
+<span class="c-locked">Camera — locked, match Reference A exactly:
+Isometric, 45 degree horizontal rotation, 33 degree vertical tilt downward.
+Telephoto compression — 300mm equivalent. No wide-angle distortion.
+Vertical lines stay perfectly vertical. No perspective convergence.
+Parallel lines remain parallel. Orthographic influence throughout.
+
+Lighting — from Reference B, cleaned:
+Take lighting character from Reference B.
+Clean and soften: remove harsh shadows, add soft diffused ambient fill.
+Gentle top-left key. Ground shadows beneath all figures and objects.
+Slight cinematic grade. iPhone photography realism.
+
+Materials — from Reference B, exact:
+Replicate all materials and surfaces from Reference B exactly.
+Slightly clean: remove grain and compression. Keep texture character.
+No invented materials. What exists in Reference B appears in output.
+
+Figures — from Reference B, placed per Reference A:
+Place figure(s) at positions shown in Reference A sketch.
+Preserve identity: clothing, hair, posture exact.
+Figure grounded with soft shadow. Small relative to environment.</span>
+
+<span class="c-locked">Photorealistic isometric render. Ultra-detailed. 8k.
+Architectural visualization grade.
+The final image must feel like a playable level frozen in time —
+not a photo, not a drawing — a rendered reconstruction of a real space.</span>
+
+<span class="c-var">--ar 9:16 --style raw --v 6</span>
+<span class="c-comment">// ComfyUI: ControlNet depth/canny from sketch + img2img from photos</span>
+<span class="c-comment">// MJ: paste both image URLs before prompt</span></div>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">Best tool for Prompt B</div>
+  <div class="block" style="border-color:var(--gold)">
+    <div class="block-title" style="color:var(--gold)">ComfyUI + ControlNet — recommended for Prompt B</div>
+    <p>Use ControlNet depth or canny map from your sketch as the structural guide. Use img2img from your space photos for texture and material. Free, local, no API cost. Setup time 2–4 hours first time. Highest consistency and control of any available tool for this specific two-reference workflow.</p>
+    <br>
+    <span class="tag tag-green">depth controlnet from sketch</span>
+    <span class="tag tag-green">img2img from photos</span>
+    <span class="tag tag-yellow">free + local</span>
+    <span class="tag tag-blue">highest consistency</span>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">Common generation fixes</div>
+  <div class="grid-2">
+    <div class="block"><div class="block-title">Camera too steep (bird's eye)</div><p>Add: "33 degrees vertical only — NOT top-down, NOT bird's eye, front face of buildings must be clearly visible, more wall than roof"</p></div>
+    <div class="block"><div class="block-title">Figure too large</div><p>Add: "human figure occupies maximum one-quarter of frame height, environment dominates, small figure in large world"</p></div>
+    <div class="block"><div class="block-title">Perspective distorting</div><p>Add: "zero wide-angle distortion, strict orthographic camera, no converging lines, all vertical edges perfectly parallel"</p></div>
+    <div class="block"><div class="block-title">Lighting too dramatic</div><p>Add: "overcast diffused light only, no dramatic shadows, flat natural daylight, no directional sunbeams, no god rays"</p></div>
+    <div class="block"><div class="block-title">Materials too stylized</div><p>Add: "photorealistic only, no painterly rendering, no illustration style, no concept art aesthetic, real-world surface fidelity"</p></div>
+    <div class="block"><div class="block-title">Identity not preserved</div><p>Add: "preserve exact clothing, hairstyle, skin tone, build from reference — do not alter or stylize the person in any way"</p></div>
+  </div>
+</div>
+
+
+<!-- 04 SCENE REGISTRY -->
+<div id="registry" class="content">
+  <div class="section-title">Approved scene catalog — v1 (8 scenes)</div>
+
+  <div class="info">📁 File naming convention: <strong>ssx_iso__[character/location]_[descriptor].png</strong> — all lowercase, double underscore after prefix, single underscore between words.</div>
+
+  <div class="grid-2" style="margin-top:16px">
+    <div class="scene-card">
+      <div class="scene-name">ssx_iso__the_compound_room_2.png</div>
+      <div class="scene-tags"><span class="tag tag-yellow">interior</span><span class="tag tag-blue">creative studio</span><span class="tag tag-green">APPROVED</span></div>
+      <div class="scene-notes">Dark concrete floor, white walls, large work table with DJ/production gear, blueprints, two mannequins in draped coats flanking table, cork board with references on back wall. Player in white longsleeve + khaki pants walking through lower-right.</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-name">ssx_iso__gallery_giant_hand.png</div>
+      <div class="scene-tags"><span class="tag tag-yellow">interior</span><span class="tag tag-red">surreal</span><span class="tag tag-green">APPROVED</span></div>
+      <div class="scene-notes">Gallery room with concrete/plaster walls. Abstract Pollock painting on back wall. Red carpet entry leads to player in white tank + cargo pants. Giant hand sculpture dominates floor. Silver pedestal with objects. Vinyl disc on floor. Chair with fur throw in corner.</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-name">ssx_iso__sephrina_nyc_corner.png</div>
+      <div class="scene-tags"><span class="tag tag-yellow">exterior</span><span class="tag tag-blue">urban</span><span class="tag tag-green">APPROVED</span></div>
+      <div class="scene-notes">NYC street corner at night/dusk. Deli grocery with yellow awning. Pink neon "SEPHRINA" sign. Steam from manhole cover. Two women in matching black tops + white skirts facing each other. Rain-wet asphalt, yellow traffic signals, white delivery van.</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-name">ssx_iso__sa_penguin_beach.png</div>
+      <div class="scene-tags"><span class="tag tag-yellow">exterior</span><span class="tag tag-green">nature</span><span class="tag tag-green">APPROVED</span></div>
+      <div class="scene-notes">South Africa Boulders Beach. Turquoise clear ocean water. Large granite boulders. Player in yellow top + dark shorts standing on rock island. African penguins as secondary world inhabitants distributed across rocks and water. High natural light.</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-name">ssx_iso__bruno_concrete_yard.png</div>
+      <div class="scene-tags"><span class="tag tag-yellow">exterior</span><span class="tag tag-blue">urban / raw</span><span class="tag tag-green">APPROVED</span></div>
+      <div class="scene-notes">Raw concrete courtyard. Cracked, weathered floor. Shirtless figure (Bruno), black wide-leg sweats, athletic build, slight upward gaze. Minimal secondary detail — pure character in open environment. Concrete column visible upper-right. Dust haze.</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-name">ssx_iso__munz_cube.png</div>
+      <div class="scene-tags"><span class="tag tag-yellow">interior</span><span class="tag tag-green">SSX CUBE</span><span class="tag tag-green">APPROVED</span></div>
+      <div class="scene-notes">Raw concrete loft space. White painted staircase upper-right. Tropical plants in black pots. Ground-level haze on concrete. Munz in yellow hoodie + black jacket reading an open book. Silver SSX cube beside feet. Atmospheric interior mood.</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-name">ssx_ref__pipeline_demo_sheet.png</div>
+      <div class="scene-tags"><span class="tag tag-blue">reference</span><span class="tag tag-blue">pipeline</span></div>
+      <div class="scene-notes">Input → output comparison sheet. Shows 4 pairs of real iPhone photos and their isometric reconstruction. Documents the early pipeline logic: photo angle, character extraction, scene elevation, lighting conversion. Not a final scene — a process document.</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-name">ssx_ref__four_scene_grid.png</div>
+      <div class="scene-tags"><span class="tag tag-blue">reference</span><span class="tag tag-blue">grid</span></div>
+      <div class="scene-notes">2x2 grid of four approved SSX scenes in one frame. Top-left: blue gallery/museum with sculptures (external reference/aspiration). Top-right: gallery giant hand (Munz). Bottom-left: munz reading + cube. Bottom-right: munz on grass + cube. Used as style consistency reference sheet.</div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">Scene taxonomy — working categories</div>
+  <div class="grid-3">
+    <div class="block"><div class="block-title">Interior — Creative</div><p>Studios, compound rooms, galleries, bedrooms, workspaces. Character is inhabitant. Objects tell the story.</p></div>
+    <div class="block"><div class="block-title">Interior — Surreal</div><p>Real room + impossible object or scale shift. Giant hand. Oversized props. Reality bent but grounded in real architecture.</p></div>
+    <div class="block"><div class="block-title">Exterior — Urban</div><p>Streets, corners, yards, rooftops. Concrete, asphalt, graffiti, signage. City as game world.</p></div>
+    <div class="block"><div class="block-title">Exterior — Nature</div><p>Beaches, rocks, grass, forests. Player in raw landscape. Scale of nature vs human.</p></div>
+    <div class="block"><div class="block-title">Portrait Yard</div><p>Single character, minimal environment. Focus on identity + posture. Bruno archetype. Raw + confident.</p></div>
+    <div class="block"><div class="block-title">Social / Multi-player</div><p>2+ characters in scene. Interaction, tension, or energy between them. Sephrina archetype.</p></div>
+  </div>
+</div>
+
+
+<!-- 05 PLATFORM -->
+<div id="platform" class="content">
+  <div class="section-title">Platform decision — most important architectural choice</div>
+
+  <div class="platform-card winner">
+    <div class="platform-title">Progressive Web App (PWA)</div>
+    <div class="platform-desc">Browser-first, mobile-optimized. Works on any device without app store friction. Camera + gyroscope access via WebXR. Ship fast, iterate instantly. This is where the MVP lives.</div>
+    <div class="pro-con">
+      <div class="pros">
+        <div class="col-title">PROS</div>
+        <ul>
+          <li>No App Store gatekeeping or 30% cut</li>
+          <li>Push updates instantly — no re-approval</li>
+          <li>Camera + gyroscope via browser APIs</li>
+          <li>Shareable scene URLs = viral distribution</li>
+          <li>Cheapest path to working demo</li>
+          <li>Supabase + Vercel = already set up</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="col-title">CONS</div>
+        <ul>
+          <li>WebXR AR is limited on iOS Safari</li>
+          <li>Performance ceiling vs native</li>
+          <li>Less app store discoverability</li>
+        </ul>
+      </div>
+    </div>
+    <div class="verdict">→ BUILD THIS FIRST. MVP, beta, and VC demo all live here.</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="platform-card">
+      <div class="platform-title">Native Mobile App</div>
+      <div class="platform-desc">iOS / Android. Full ARKit / ARCore. Best performance.</div>
+      <div class="pro-con">
+        <div class="pros"><div class="col-title">PROS</div><ul><li>Full AR capability</li><li>Best camera performance</li><li>App store discovery</li></ul></div>
+        <div class="cons"><div class="col-title">CONS</div><ul><li>6–9 months minimum</li><li>High dev cost</li><li>App review delays</li></ul></div>
+      </div>
+      <div class="verdict">→ Phase 3 — post-funding</div>
+    </div>
+    <div class="platform-card">
+      <div class="platform-title">Custom Game Engine</div>
+      <div class="platform-desc">Unity / Unreal. Full game-grade isometric world. Total visual control. The final form.</div>
+      <div class="pro-con">
+        <div class="pros"><div class="col-title">PROS</div><ul><li>True game experience</li><li>Best isometric rendering</li><li>Full character systems</li></ul></div>
+        <div class="cons"><div class="col-title">CONS</div><ul><li>$300K–$1M to build</li><li>18+ month timeline</li><li>Needs a team</li></ul></div>
+      </div>
+      <div class="verdict">→ Phase 4 — after Series A</div>
+    </div>
+  </div>
+
+  <div class="section-title">Recommended MVP tech stack</div>
+  <div class="block">
+    <div class="block-title">What we're building with</div>
+    <p><b>Frontend:</b> React + Three.js (isometric scene rendering + parallax) + Tailwind CSS</p><br>
+    <p><b>Scene Generation:</b> Replicate API (Flux Dev) for pipeline, Midjourney for quality-first work</p><br>
+    <p><b>Character Extraction:</b> SAM2 (Meta) via Replicate, or remove.bg for quick passes</p><br>
+    <p><b>AR / Camera:</b> DeviceOrientation + DeviceMotion API (web, works today). ARKit Phase 3.</p><br>
+    <p><b>Backend + DB:</b> Supabase — auth, file storage, scene metadata. Already connected.</p><br>
+    <p><b>Deployment:</b> Vercel. Already connected. Instant preview URLs for every build.</p><br>
+    <p><b>Master Doc:</b> This HTML file, hosted on GitHub. Claude fetches raw URL each session.</p>
+  </div>
+</div>
+
+
+<!-- 06 ROADMAP -->
+<div id="roadmap" class="content">
+  <div class="section-title">Phased build — ground up, no chaos</div>
+
+  <div class="phase now">
+    <div class="phase-num">00</div>
+    <div class="phase-body">
+      <div class="phase-label">NOW — Active</div>
+      <div class="phase-title">Lock the Visual Bible + Prompt System</div>
+      <ul class="phase-items">
+        <li>Camera angle, light direction, color grade — locked in writing ✓</li>
+        <li>Master Prompt v1 built ✓</li>
+        <li>NB Prompt A + B built ✓</li>
+        <li>Scene registry started — 8 scenes catalogued ✓</li>
+        <li>Master document merged and on GitHub → in progress</li>
+        <li>Confirm "nano banana" tool + rewrite prompts for exact syntax</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num">01</div>
+    <div class="phase-body">
+      <div class="phase-label">Weeks 2–3</div>
+      <div class="phase-title">Photo → Scene Pipeline (manual)</div>
+      <ul class="phase-items">
+        <li>Working prompt system: any photo → consistent isometric scene</li>
+        <li>Character extraction workflow (SAM2 / remove.bg)</li>
+        <li>Manual compositing in Photoshop / Affinity</li>
+        <li>Target: 1 finished scene per work session, reliably</li>
+        <li>Build up scene registry to 20+ approved stills</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num">02</div>
+    <div class="phase-body">
+      <div class="phase-label">Weeks 4–6</div>
+      <div class="phase-title">Web MVP — Scene Viewer</div>
+      <ul class="phase-items">
+        <li>Simple web page: upload photo → receive Sunsex scene</li>
+        <li>Avatar placed in scene with correct spatial logic</li>
+        <li>Shareable URL per scene</li>
+        <li>First public-facing version of the product</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num">03</div>
+    <div class="phase-body">
+      <div class="phase-label">Weeks 7–10</div>
+      <div class="phase-title">Camera Movement / AR Layer</div>
+      <ul class="phase-items">
+        <li>Phone gyroscope → character movement in isometric scene</li>
+        <li>Parallax background layers respond to tilt</li>
+        <li>First true "game feel" moment in the product</li>
+        <li>The demo-killer feature for press and investors</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num">04</div>
+    <div class="phase-body">
+      <div class="phase-label">Month 3–4</div>
+      <div class="phase-title">Identity + Memory Engine</div>
+      <ul class="phase-items">
+        <li>User accounts + persistent avatar identity</li>
+        <li>Scene collection / memory archive</li>
+        <li>Location tagging on scenes</li>
+        <li>First shareable "life map"</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num">05</div>
+    <div class="phase-body">
+      <div class="phase-label">Month 4–6</div>
+      <div class="phase-title">Beta + Funding</div>
+      <ul class="phase-items">
+        <li>Closed beta: 50–100 real users producing scenes</li>
+        <li>VC pitch deck finalized and tested</li>
+        <li>Brand partnership outreach (streetwear, travel, lifestyle)</li>
+        <li>Pre-seed round: $50–150K target</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- 07 AR SYSTEM -->
+<div id="ar" class="content">
+  <div class="section-title">AR camera movement system — design spec</div>
+
+  <div class="ar-note">
+    <div class="ar-label">📌 LOCKED SYSTEM NOTE</div>
+    <h3>Parallel Camera / Phone Movement Control</h3>
+    <p>The phone camera creates an invisible AR tracking layer that reads its orientation in space. That orientation data maps to the isometric character's position and facing within the scene. The user physically moves or tilts their phone → the character moves in the isometric world. The world itself parallax-shifts to reinforce depth.</p>
+  </div>
+
+  <div class="section-title">Technical breakdown</div>
+  <div class="grid-2">
+    <div class="block">
+      <div class="block-title">Input — Device Sensors</div>
+      <p>Phone gyroscope + accelerometer deliver real-time orientation: pitch, yaw, roll. The DeviceOrientation API gives this in-browser at 60fps. No full AR plane detection needed for Phase A — just orientation tracking. Works today on Android. iOS requires a permission prompt.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">Mapping Layer</div>
+      <p>Raw sensor angles → normalized movement vectors → character position delta in isometric coordinate space. Tilt left = character steps left. Tilt forward = character walks into scene. Center dead zone for idle stability. Sensitivity curve prevents jitter.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-title">The Parallax Layer — the magic moment</div>
+    <p>As the phone tilts, scene layers shift at different speeds: foreground shifts least, background architecture shifts most. Creates convincing 3D depth inside a 2D isometric frame. Implementation cost: low. Demo impact: very high. This is the moment that makes a VC lean forward.</p>
+  </div>
+
+  <div class="section-title">Build sequence</div>
+  <div class="phase now">
+    <div class="phase-num">A</div>
+    <div class="phase-body">
+      <div class="phase-label">First pass — works in browser today</div>
+      <div class="phase-title">Gyroscope Parallax Only</div>
+      <ul class="phase-items">
+        <li>Phone tilt → 2–3 background layers shift independently</li>
+        <li>No character movement yet — pure depth illusion</li>
+        <li>Build in Three.js or pure CSS 3D transforms</li>
+        <li>Ships in a week if scene asset is ready</li>
+      </ul>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="phase-num">B</div>
+    <div class="phase-body">
+      <div class="phase-label">Second pass</div>
+      <div class="phase-title">Character Movement</div>
+      <ul class="phase-items">
+        <li>Tilt angle maps to character walk direction and speed</li>
+        <li>Character sprite animates: idle / walk cycles</li>
+        <li>Scene boundary detection — character can't walk off-screen</li>
+        <li>Interaction triggers when character reaches scene objects</li>
+      </ul>
+    </div>
+  </div>
+  <div class="phase">
+    <div class="phase-num">C</div>
+    <div class="phase-body">
+      <div class="phase-label">Third pass — requires native app</div>
+      <div class="phase-title">True AR Anchoring</div>
+      <ul class="phase-items">
+        <li>ARKit / ARCore full plane detection</li>
+        <li>Isometric scene appears anchored in physical space</li>
+        <li>Walk around the scene in real life</li>
+        <li>Phase 3 native app feature</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- 08 TOOLS -->
+<div id="tools" class="content">
+  <div class="section-title">Scene generation</div>
+  <div class="tool-row"><div class="tool-name">Midjourney v6</div><div class="tool-use">Primary creative tool. Best aesthetic quality for manual pipeline. Use --cref for character fidelity, --sref for style reference, --iw for reference image weight.</div><div class="tool-cost">~$10/mo</div></div>
+  <div class="tool-row"><div class="tool-name">Flux Dev (Replicate)</div><div class="tool-use">API-accessible generation. Automate into pipeline. Slightly less quality than MJ but scalable and programmable. img2img at strength 0.55–0.65 for transformations.</div><div class="tool-cost">Pay per run</div></div>
+  <div class="tool-row"><div class="tool-name">ComfyUI (local)</div><div class="tool-use">Best for Prompt B (sketch → iso). ControlNet depth/canny from sketch + img2img from photos. Full pipeline control. Free and local. Steeper setup.</div><div class="tool-cost">Free</div></div>
+  <div class="tool-row"><div class="tool-name">Nano Banana</div><div class="tool-use">Tool to be confirmed. Prompts A + B are ready — pending exact tool name to rewrite with correct syntax and parameters.</div><div class="tool-cost s-tbd" style="color:var(--red)">TBD</div></div>
+
+  <div class="section-title" style="margin-top:24px">Character + compositing</div>
+  <div class="tool-row"><div class="tool-name">SAM2 (Meta)</div><div class="tool-use">State-of-art segmentation. Extract character from any photo with clean edges. Via Replicate API or local.</div><div class="tool-cost">API / free local</div></div>
+  <div class="tool-row"><div class="tool-name">Remove.bg</div><div class="tool-use">Fast background removal for quick manual pipeline passes. Good first-pass tool.</div><div class="tool-cost">~$9/mo</div></div>
+  <div class="tool-row"><div class="tool-name">Photoshop / Affinity</div><div class="tool-use">Scene compositing, character placement, color grading, HUD overlay text, final output polish.</div><div class="tool-cost">$20/mo or $70 one-time</div></div>
+
+  <div class="section-title" style="margin-top:24px">Dev + infrastructure (connected)</div>
+  <div class="tool-row"><div class="tool-name">Supabase</div><div class="tool-use">Auth + database + file storage for scenes, user data, memory archives. Connected.</div><div class="tool-cost">Free tier</div></div>
+  <div class="tool-row"><div class="tool-name">Vercel</div><div class="tool-use">Web deployment. Instant preview URLs. Connected.</div><div class="tool-cost">Free tier</div></div>
+  <div class="tool-row"><div class="tool-name">Three.js</div><div class="tool-use">Web 3D / 2.5D scene rendering. Isometric camera + parallax layers + character movement.</div><div class="tool-cost">Free</div></div>
+  <div class="tool-row"><div class="tool-name">GitHub</div><div class="tool-use">Host this master doc (ssx_master.html) as raw URL. Claude fetches it each session. Single source of truth.</div><div class="tool-cost">Free</div></div>
+
+  <div class="section-title" style="margin-top:24px">Organization</div>
+  <div class="tool-row"><div class="tool-name">Notion</div><div class="tool-use">Project doc, scene log, weekly task board, supplementary notes.</div><div class="tool-cost">Free</div></div>
+  <div class="tool-row"><div class="tool-name">Claude</div><div class="tool-use">Art Director + Pipeline Engineer + Game Designer + Systems Thinker. Prompt engineering, code, scene analysis, business copy, weekly planning.</div><div class="tool-cost">~$20/mo Pro</div></div>
+</div>
+
+
+<!-- 09 CLAUDE SETUP -->
+<div id="claude" class="content">
+  <div class="section-title">How Claude works in this project</div>
+
+  <div class="warning">⚠ Claude has no persistent memory between conversations. The GitHub-hosted master doc solves this. Every session: Claude fetches the raw URL → reads everything → picks up exactly where we left off.</div>
+
+  <div class="section-title">GitHub setup — one-time action</div>
+  <div class="block">
+    <div class="block-title">How to set it up</div>
+    <p>1. Create a GitHub repo (can be private) — suggested name: <b>sunsex-docs</b></p><br>
+    <p>2. Upload <b>ssx_master.html</b> to the repo</p><br>
+    <p>3. Get the raw URL: <b>https://raw.githubusercontent.com/[username]/sunsex-docs/main/ssx_master.html</b></p><br>
+    <p>4. Add this one line to Claude Project Instructions:</p>
+  </div>
+
+  <div class="context-block"><span class="ctx-label">ADD TO CLAUDE PROJECT INSTRUCTIONS — ONE LINE</span>Always fetch the live SSX master document at the start of every session:
+https://raw.githubusercontent.com/[YOUR-USERNAME]/sunsex-docs/main/ssx_master.html</div>
+
+  <div class="section-title">Session workflow — how updates work</div>
+  <div style="margin-top:12px;margin-bottom:20px">
+    <div class="flow-row"><div class="flow-node">Start session</div><div class="flow-arrow">→</div><div class="flow-node">Claude fetches raw GitHub URL</div></div>
+    <div class="flow-row"><div class="flow-node">Work session</div><div class="flow-arrow">→</div><div class="flow-node">Build, prompt, decide, create</div></div>
+    <div class="flow-row"><div class="flow-node">End of session</div><div class="flow-arrow">→</div><div class="flow-node">Claude outputs updated ssx_master.html</div></div>
+    <div class="flow-row"><div class="flow-node">You download</div><div class="flow-arrow">→</div><div class="flow-node">Push to GitHub — doc is live</div></div>
+    <div class="flow-row"><div class="flow-node">Next session</div><div class="flow-arrow">→</div><div class="flow-node">Claude fetches again — full context restored</div></div>
+  </div>
+
+  <div class="section-title">Master context block — for new sessions before GitHub is live</div>
+  <div class="context-block"><span class="ctx-label">PASTE AT START OF EVERY NEW SESSION (UNTIL GITHUB IS LIVE)</span>I am building SUNSEX — a real-life reflection engine that converts real
+photos/videos/locations into cinematic isometric scenes that feel like
+playable game levels.
+
+VISUAL RULES (strict):
+- Camera: 45° horizontal rotation, 33° vertical tilt down (NOT 45°)
+- FOV: telephoto compression, 200–400mm equivalent, orthographic influence
+- Light: soft natural top-left key, overcast fill, no harsh shadows
+- Materials: photoreal base, slightly simplified
+- Lines: clean verticals, no perspective convergence
+- Every scene: entry point + primary zone + secondary detail + background
+
+PLATFORM: PWA web-first. Stack: React + Three.js + Supabase + Vercel.
+MASTER DOC: ssx_master.html — hosted on GitHub (URL TBD)
+MASTER PROMPT: v1 complete — see ssx_master.html tab 02
+NB PROMPTS: A + B complete — tool TBD — see ssx_master.html tab 03
+SCENE REGISTRY: 8 scenes catalogued — see ssx_master.html tab 04
+SSX CUBE: silver/concrete ~30cm cube — recurring game object, confirmed
+
+CURRENT PHASE: Phase 00 — Locking pipeline + pushing doc to GitHub
+
+YOUR ROLE: Art Director + Pipeline Engineer + Game Designer + Systems Thinker.
+Think in systems. Prioritize consistency over novelty. No overcomplicating.</div>
+
+  <div class="section-title">Claude's responsibilities</div>
+  <div class="grid-2">
+    <div class="block">
+      <div class="block-title">Technical</div>
+      <p>Prompt engineering + refinement. Three.js isometric scene components. Supabase schema design. AR gyroscope code. Pipeline automation logic. Character extraction workflows.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">Creative / Art Direction</div>
+      <p>Enforce visual rules on every output. Evaluate scenes against Visual Bible. Suggest composition improvements. Generate and iterate scene description prompts. Scene taxonomy and system design.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">Business</div>
+      <p>Pitch deck drafts. VC positioning. Brand copy and manifesto. Pre-seed raise structure. Brand partnership outreach. Q&A prep for investor meetings.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">Organization</div>
+      <p>Weekly planning. Break phases into daily tasks. Maintain this master document. Flag scope creep. Update session log. Keep project from sprawling.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Weekly rhythm</div>
+  <div class="week-row"><div class="week-day">MON</div><div class="week-tasks"><b>Planning session.</b> Fetch master doc. Review last week. Set 3 goals. Assign Claude task.</div></div>
+  <div class="week-row"><div class="week-day">TUE–THU</div><div class="week-tasks"><b>Build sessions.</b> Specific problems — prompts, code, copy. One concrete output per session minimum.</div></div>
+  <div class="week-row"><div class="week-day">FRI</div><div class="week-tasks"><b>Scene production day.</b> Run full pipeline. Produce 1–3 Sunsex scenes. Evaluate against Visual Bible. Log results.</div></div>
+  <div class="week-row"><div class="week-day">SUN</div><div class="week-tasks"><b>Review + update.</b> What worked, what didn't. Update master doc. Push to GitHub. Ready for Monday.</div></div>
+</div>
+
+
+<!-- 10 BUSINESS -->
+<div id="business" class="content">
+  <div class="section-title">Business strategy</div>
+  <div class="grid-3" style="margin-bottom:24px">
+    <div class="stat-box"><div class="stat-num">$50K</div><div class="stat-label">Pre-seed target</div></div>
+    <div class="stat-box"><div class="stat-num">3.2B</div><div class="stat-label">Lifelogging market</div></div>
+    <div class="stat-box"><div class="stat-num">Phase 5</div><div class="stat-label">When to raise</div></div>
+  </div>
+
+  <div class="section-title">The pitch narrative</div>
+  <div class="pitch-block"><h3>01 — The Problem</h3><p>Your life is the most interesting game that's never been made. Every moment has the visual richness of a AAA open-world — but it disappears. Instagram captures the surface. Nothing translates the scene. Existing tools document. They don't render.</p></div>
+  <div class="pitch-block"><h3>02 — The Insight</h3><p>Gaming and real life are converging. Fortnite sells real clothing. BeReal and TikTok compete with games for daily attention. The next medium isn't AR or VR — it's life itself, rendered. No product has built this with visual consistency and identity fidelity at once.</p></div>
+  <div class="pitch-block"><h3>03 — The Product</h3><p>Sunsex takes your iPhone photo and outputs a cinematic isometric scene — your life as a playable level. Your avatar is you. Your locations are real. Your moments become scenes you can share, inhabit, and collect. Tilt your phone — your character moves.</p></div>
+  <div class="pitch-block"><h3>04 — The Moat</h3><p>The "Sunsex look" is the defensible asset. Two years developing a specific visual system — flattened perspective realism, game-logic composition, identity fidelity — that can't be replicated by prompting ChatGPT. This is a pipeline, not a prompt. A system, not a filter.</p></div>
+  <div class="pitch-block"><h3>05 — The Ask</h3><p>$50K pre-seed. 6 months to beta. 100 real users producing scenes daily. Use of funds: AI API infrastructure, dev acceleration, brand partnerships, beta community. Equity or rev share negotiable.</p></div>
+
+  <div class="section-title" style="margin-top:24px">Where to look first</div>
+  <div class="grid-2">
+    <div class="block">
+      <div class="block-title">VC Targets</div>
+      <p>Gaming-adjacent funds. Creator economy investors. Digital identity / avatar plays. Consumer social with culture angle. Study who funded: Genies, Ready Player Me, BeReal, Locket Widget, Zepeto. Those investor networks are the target.</p>
+    </div>
+    <div class="block">
+      <div class="block-title">Brand Partners (faster money)</div>
+      <p>Streetwear brands. Travel lifestyle brands. Sneaker collabs. Pay for organic integration and case studies. One strong brand deal = proof point that unlocks investor conversations.</p>
+    </div>
+  </div>
+  <div class="warning">Priority order: (1) Lock visual pipeline → (2) Build one brand case study → (3) Use that to open VC conversations. Don't pitch before you have something to show.</div>
+</div>
+
+
+<!-- 11 SESSION LOG -->
+<div id="log" class="content">
+  <div class="section-title">Decisions made — locked</div>
+
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">Camera spec locked: 45° horizontal rotation, -33° vertical tilt (NOT -45°). More front face than top. This distinguishes SSX from standard isometric.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">FOV locked: as flat/orthographic as possible. In 3D: 200–400mm+ equivalent. Camera pulled far back. No wide-angle distortion.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">File naming convention established: ssx_iso__[character/location]_[descriptor].png — double underscore after prefix, all lowercase.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">SSX Cube confirmed as canonical recurring game object. Matte silver/concrete, ~30cm, appears near player. Collectible anchor. Optional per scene.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">Master Prompt v1 built and locked. Full variable system defined. Works for Midjourney v6 and Flux Dev.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">NB Prompt A (image → iso) and Prompt B (sketch + image → controlled iso) built. Tool "nano banana" not yet confirmed — prompts tool-agnostic pending confirmation.</div><div class="decision-status s-tbd">TOOL TBD</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">GitHub hosting strategy decided. Master doc (ssx_master.html) to be hosted as raw URL. Claude fetches at session start for persistent context. One instruction line in Claude Project.</div><div class="decision-status s-open">IN PROGRESS</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">Scene registry established. 8 scenes catalogued with names, tags, and descriptions. Working scene taxonomy defined: 6 categories.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">HUD overlay spec locked: monospace text, bottom-left, 10–12px, 60–80% opacity. Three lines: version, coordinates, memory ID.</div><div class="decision-status s-locked">LOCKED</div></div>
+
+  <div class="section-title" style="margin-top:32px">Open questions — to resolve next session</div>
+  <div class="decision-row"><div class="decision-date">OPEN</div><div class="decision-text">What tool is "nano banana"? Confirm so NB Prompts A + B can be rewritten with exact syntax and parameters.</div><div class="decision-status s-tbd">RESOLVE NEXT</div></div>
+  <div class="decision-row"><div class="decision-date">OPEN</div><div class="decision-text">GitHub repo URL — create sunsex-docs repo, push ssx_master.html, provide raw URL for Claude project instruction.</div><div class="decision-status s-tbd">RESOLVE NEXT</div></div>
+  <div class="decision-row"><div class="decision-date">OPEN</div><div class="decision-text">First scene production session — what's the next photo/input going into the pipeline to test Master Prompt v1?</div><div class="decision-status s-tbd">RESOLVE NEXT</div></div>
+
+  <div class="section-title" style="margin-top:32px">What has been built — inventory</div>
+  <div class="block">
+    <div class="block-title">Completed outputs — May 2026</div>
+    <p style="font-family:'Space Mono',monospace;font-size:11px;color:#666;line-height:2.2">
+      ✓ &nbsp;sunsex_master_plan.html &nbsp;&nbsp; — &nbsp; original strategy document (April 2026)<br>
+      ✓ &nbsp;ssx_master_prompt_v1.html &nbsp; — &nbsp; prompt system standalone (May 2026, superseded)<br>
+      ✓ &nbsp;ssx_master.html &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; <span style="color:var(--gold)">THIS FILE — merged master document v2.0</span><br>
+      ✓ &nbsp;Visual Bible &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; all camera, light, material, scene rules locked<br>
+      ✓ &nbsp;Master Prompt v1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; universal scene generation formula<br>
+      ✓ &nbsp;NB Prompt A &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; image(s) → isometric render<br>
+      ✓ &nbsp;NB Prompt B &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; sketch + images → controlled iso render<br>
+      ✓ &nbsp;Scene Registry &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; 8 scenes named, tagged, described<br>
+      ✓ &nbsp;Naming Convention &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; ssx_iso__[name]_[descriptor].png
+    </p>
+  </div>
+</div>
+
+
+<script>
+  function show(id, el) {
+    document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+  }
+
+  function copyPrompt(id) {
+    const el = document.getElementById(id);
+    const text = el.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = el.closest('.prompt-box').querySelector('.copy-btn');
+      btn.textContent = 'COPIED';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
