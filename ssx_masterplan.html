@@ -66,6 +66,7 @@
   .c-locked { color: var(--green); }
   .c-comment { color: #444; }
   .c-inject { color: var(--blue); }
+  .c-fix { color: #f87171; }
 
   .copy-btn { position: absolute; top: 16px; right: 16px; font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; padding: 5px 10px; border: 1px solid #333; border-radius: 2px; background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; }
   .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
@@ -149,9 +150,9 @@
 <div class="header">
   <div>
     <div class="brand">SUN<span>SEX</span></div>
-    <div style="font-family:'Space Mono',monospace;font-size:9px;color:#444;margin-top:6px;letter-spacing:4px;">MASTER DOCUMENT — v2.0 — MAY 2026</div>
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:#444;margin-top:6px;letter-spacing:4px;">MASTER DOCUMENT — v2.1 — MAY 2026</div>
   </div>
-  <div class="subtitle">2 years in<br>pipeline is being built</div>
+  <div class="subtitle">pipeline building<br>proportion fix live</div>
 </div>
 
 <div class="tabs">
@@ -192,7 +193,7 @@
     </div>
     <div class="block">
       <div class="block-title">02 — Scene coherence</div>
-      <p>Every output belongs to the same world. Same camera logic. Same light. Same spatial grammar. No exceptions.</p>
+      <p>Every output belongs to the same world. Same camera logic. Same spatial grammar. Lighting follows the scene. No exceptions.</p>
     </div>
     <div class="block">
       <div class="block-title">03 — Game readability</div>
@@ -214,19 +215,6 @@
       <div class="block-title">C — Memory Engine (CORE)</div>
       <p>Real actions → become scenes. Scenes = the actual content of the system. This is what makes Sunsex real.</p>
     </div>
-  </div>
-
-  <div class="section-title">Genre definition</div>
-  <div class="block">
-    <div class="block-title">Reflective Realism — a new genre</div>
-    <p>Part video game. Part storytelling tool. Part content creation engine. Inspired by drone photography, iPhone captures, and AAA open-world maps. The Sims meets GTA V exploration — but grounded in real locations, real actions, real identity, and a signature isometric perspective.</p>
-    <br>
-    <span class="tag tag-yellow">life simulation</span>
-    <span class="tag tag-yellow">visual storytelling</span>
-    <span class="tag tag-yellow">ambient RPG</span>
-    <span class="tag tag-blue">web-based first</span>
-    <span class="tag tag-green">real identity</span>
-    <span class="tag tag-green">real locations</span>
   </div>
 
   <div class="warning">⚠ The trap after 2 years of building chaotically: piling on features before the core visual pipeline is locked. The ONE thing that must work perfectly before anything else is the photo → scene translation. Everything else is downstream of cracking that.</div>
@@ -259,11 +247,15 @@
   <div class="rule-row"><div class="rule-key">VERTICALS</div><div class="rule-val">Vertical lines must stay vertical. No leaning, no keystoning. The clearest signal of the SSX camera. Non-negotiable.</div><div class="rule-status s-locked">LOCKED</div></div>
   <div class="rule-row"><div class="rule-key">FEEL</div><div class="rule-val">"Flattened perspective realism" — orthographic influence but not fully flat. Slight depth still reads, but controlled and clean.</div><div class="rule-status s-locked">LOCKED</div></div>
 
-  <div class="section-title">Lighting rules — locked</div>
-  <div class="rule-row"><div class="rule-key">KEY LIGHT</div><div class="rule-val">Soft, diffused, top-left direction. Natural ambient quality — as if shot on iPhone outdoors in overcast conditions.</div><div class="rule-status s-locked">LOCKED</div></div>
-  <div class="rule-row"><div class="rule-key">FILL</div><div class="rule-val">Gentle overcast-quality fill. No hard second light. Shadows soft and directional.</div><div class="rule-status s-locked">LOCKED</div></div>
-  <div class="rule-row"><div class="rule-key">SHADOWS</div><div class="rule-val">Present but soft. Ground shadow under all figures is essential for spatial grounding. Never harsh or dramatic.</div><div class="rule-status s-locked">LOCKED</div></div>
-  <div class="rule-row"><div class="rule-key">MOOD</div><div class="rule-val">Neutral to slightly warm. Never cold/clinical. Never golden hour or night — unless scene demands it explicitly.</div><div class="rule-status s-open">PER SCENE</div></div>
+  <div class="section-title">Lighting rules — PER SCENE (not globally locked)</div>
+
+  <div class="info">📌 Lighting is NOT globally locked. It follows the reference image and the scene. The rules below define how to handle it — not what it must always be.</div>
+
+  <div class="rule-row"><div class="rule-key">DEFAULT</div><div class="rule-val">Match the lighting in the reference image. iPhone photography realism — preserve the mood, direction, and quality of light that exists in the input.</div><div class="rule-status s-open">PER SCENE</div></div>
+  <div class="rule-row"><div class="rule-key">BASELINE</div><div class="rule-val">When no reference is available or the source light is flat/unreadable: soft diffused natural light, gentle overcast ambient quality. Never harsh or clinical.</div><div class="rule-status s-open">PER SCENE</div></div>
+  <div class="rule-row"><div class="rule-key">CINEMATIC</div><div class="rule-val">Subtle cinematic polish only — slight color grade, not a full mood shift. Night, neon, golden hour, interior tungsten are all valid when the scene calls for it. Serve the scene, not a preset.</div><div class="rule-status s-open">PER SCENE</div></div>
+  <div class="rule-row"><div class="rule-key">SHADOWS</div><div class="rule-val">Ground shadow under all figures is essential for spatial grounding — always. Shadow hardness inherits from scene lighting: soft in overcast, harder under direct sun, colored under neon.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">NEVER</div><div class="rule-val">Never invent dramatic lighting that doesn't exist in the reference. No god rays, no studio three-point setups, no fantasy gradient skies unless the input image has them.</div><div class="rule-status s-locked">LOCKED</div></div>
 
   <div class="section-title">Materials + surfaces — locked</div>
   <div class="rule-row"><div class="rule-key">BASE</div><div class="rule-val">Photoreal. Real-world textures: concrete, asphalt, wood, fabric, skin. Not illustrated. Not stylized. Not cel-shaded.</div><div class="rule-status s-locked">LOCKED</div></div>
@@ -278,7 +270,15 @@
     <div class="block"><div class="block-title">04 Background Context</div><p>Walls, sky, foliage, distant architecture. Sets mood and world scale. Can be simple — just needs to exist.</p></div>
   </div>
 
-  <div class="section-title">Character rules — from approved stills</div>
+  <div class="section-title">Proportion rules — CRITICAL for photo-to-iso conversion</div>
+
+  <div class="warning">⚠ The AI will read apparent visual size from the reference photo — not real-world scale. A bench closest to the camera fills more frame, so the model thinks it's larger than the building behind it. This must be corrected in every prompt. See NB Prompts tab for the fix language.</div>
+
+  <div class="rule-row"><div class="rule-key">RULE</div><div class="rule-val">All objects must be reconstructed at their real-world scale relative to each other — not their apparent size in the reference photo, which is distorted by perspective.</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">ANCHORS</div><div class="rule-val">Use semantic scale anchors in prompts. Name real-world dimensions for each object class: "A human figure = 1.8m. A park bench = 1.5m long. A canal boat = 5–8m long. A 4-story building = 12m tall."</div><div class="rule-status s-locked">LOCKED</div></div>
+  <div class="rule-row"><div class="rule-key">AERIAL REF</div><div class="rule-val">When available, supply a high-angle or aerial photo of the same scene as a secondary reference. The aerial shows correct spatial footprints. Ground photo provides texture and mood.</div><div class="rule-status s-open">RECOMMENDED</div></div>
+
+  <div class="section-title">Character rules</div>
   <div class="rule-row"><div class="rule-key">SCALE</div><div class="rule-val">Figure is small relative to environment. World-scale matters. Character is never the full frame — they are one element in a larger scene.</div><div class="rule-status s-locked">LOCKED</div></div>
   <div class="rule-row"><div class="rule-key">IDENTITY</div><div class="rule-val">Clothing, hair, posture — preserved exactly from source photo. This is not a stylized avatar. It is the actual person.</div><div class="rule-status s-locked">LOCKED</div></div>
   <div class="rule-row"><div class="rule-key">PLACEMENT</div><div class="rule-val">Usually lower-left to center of frame. Grounded with shadow beneath. Never floating or without spatial anchor.</div><div class="rule-status s-locked">LOCKED</div></div>
@@ -287,7 +287,7 @@
   <div class="section-title">The SSX Cube — locked game object</div>
   <div class="block" style="border-color:var(--gold)">
     <div class="block-title" style="color:var(--gold)">Silver Cube — Recurring Collectible Anchor</div>
-    <p>A matte silver/concrete cube appears as a persistent element across multiple approved stills (munz_cube, isoFS scenes). It functions as an in-world collectible or interaction trigger. Small (~30cm), grounded, positioned near the player. First confirmed SSX game object. Its presence signals: this is a game world, not just a photo.</p>
+    <p>A matte silver/concrete cube appears as a persistent element across multiple approved stills. It functions as an in-world collectible or interaction trigger. Small (~30cm), grounded, positioned near the player. First confirmed SSX game object. Its presence signals: this is a game world, not just a photo.</p>
     <br>
     <span class="tag tag-yellow">matte silver / concrete</span>
     <span class="tag tag-yellow">~30cm cube</span>
@@ -314,10 +314,10 @@
 <div id="master" class="content">
   <div class="section-title">Master prompt v1 — universal SSX scene generator</div>
 
-  <div class="info">📌 Base formula for every SSX scene. Variables in [BRACKETS] are swapped per scene. Green text is locked — do not change it. This prompt works with Midjourney v6, Flux Dev, and most modern image gen tools.</div>
+  <div class="info">📌 Base formula for every SSX scene. Variables in [BRACKETS] are swapped per scene. Green text is locked — do not change it. Lighting is now per-scene — match the reference. Works with Midjourney v6, Flux Dev, and most modern image gen tools.</div>
 
   <div class="prompt-box">
-    <span class="prompt-label">SSX MASTER PROMPT v1.0</span>
+    <span class="prompt-label">SSX MASTER PROMPT v1.1</span>
     <button class="copy-btn" onclick="copyPrompt('mp')">COPY</button>
     <div class="prompt-code" id="mp"><span class="c-comment">// ── SCENE IDENTITY ─────────────────────────────────────────</span>
 <span class="c-var">[SCENE_TYPE]</span> scene, isometric reconstruction, flattened perspective realism,
@@ -335,6 +335,12 @@ primary zone: <span class="c-var">[PRIMARY]</span>,
 secondary detail: <span class="c-var">[SECONDARY_OBJECTS]</span>,
 background: <span class="c-var">[BACKGROUND]</span>,
 
+<span class="c-comment">// ── PROPORTION — LOCKED ────────────────────────────────────</span>
+<span class="c-locked">All objects at accurate real-world scale — not apparent photo size.
+Perspective distortion in reference image must be ignored.
+<span class="c-var">[SCALE ANCHORS — list real dimensions: "human = 1.8m, bench = 1.5m, building = 12m"]</span>
+Objects farther from camera are NOT smaller — all viewed equidistantly from above.</span>
+
 <span class="c-comment">// ── CAMERA — LOCKED ────────────────────────────────────────</span>
 <span class="c-locked">camera: isometric, 45 degree horizontal rotation,
 33 degree downward vertical tilt — more front face visible than top,
@@ -343,11 +349,12 @@ no barrel distortion, no perspective convergence,
 vertical lines stay perfectly vertical, parallel lines remain parallel,
 orthographic influence — high FOV flattened feel,</span>
 
-<span class="c-comment">// ── LIGHTING — LOCKED ──────────────────────────────────────</span>
-<span class="c-locked">soft diffused natural light, gentle top-left key light,
-overcast ambient fill, no harsh shadows,
-soft ground shadows beneath all objects and figures,
-iPhone photography realism, slight cinematic grade, neutral-warm tone,</span>
+<span class="c-comment">// ── LIGHTING — PER SCENE ───────────────────────────────────</span>
+Match lighting conditions from reference image. iPhone photography realism.
+Preserve the mood and light direction of the input.
+<span class="c-locked">Ground shadow beneath all figures — hardness inherits from scene light.
+Do not invent dramatic lighting not present in the reference.</span>
+<span class="c-var">[optional cinematic grade note if needed]</span>
 
 <span class="c-comment">// ── MATERIALS — LOCKED ─────────────────────────────────────</span>
 <span class="c-locked">photoreal surfaces, slightly simplified and cleaned textures,
@@ -382,75 +389,87 @@ drone photography influence, AAA isometric game environment, 8k</span>
       <tr><td>[PRIMARY]</td><td>"center-left, player + work table" / "mid-ground, player standing on rock island"</td></tr>
       <tr><td>[SECONDARY_OBJECTS]</td><td>"DJ equipment, monitors, cork board" / "penguins on boulders" / "silver SSX cube"</td></tr>
       <tr><td>[BACKGROUND]</td><td>"white wall with abstract painting" / "turquoise ocean + rock formations" / "grey concrete column"</td></tr>
+      <tr><td>[SCALE ANCHORS]</td><td>"human figure = 1.8m tall. park bench = 1.5m long. canal boat = 6m long. 4-story building = 12m tall."</td></tr>
     </table>
-  </div>
-
-  <div class="section-title">Filled example — Bruno concrete yard</div>
-  <div class="prompt-box green">
-    <span class="prompt-label green">EXAMPLE OUTPUT — MATCHES ssx_iso__bruno_concrete_yard</span>
-    <div class="prompt-code">exterior concrete courtyard, isometric reconstruction, flattened perspective realism,
-
-Black man, shirtless, black wide-leg sweatpants, short hair, athletic build,
-identity preserved — posture faithful, slight upward gaze,
-figure small relative to environment, soft shadow beneath feet,
-facing slightly left, three-quarter turn,
-
-raw weathered concrete yard, cracked floor with worn slab marks,
-grey concrete column upper right, dust haze in air,
-entry point at lower-left corner,
-primary zone: center-right — lone figure in open yard,
-secondary detail: worn concrete surface marks, faint dust,
-background: grey concrete wall, dim corner,
-
-camera: isometric, 45 degree horizontal rotation, 33 degree downward tilt,
-300mm telephoto compression, no distortion, vertical lines stay vertical,
-
-soft diffused natural overcast light, gentle top-left key,
-no harsh shadows, neutral-cool tone, industrial quality,
-
-photoreal concrete textures, real grit and wear preserved,
-no stylization,
-
-playable level layout, isolated figure in open world,
-cinematic still, frozen moment,
-
-photorealistic, ultra-detailed, 8k
---ar 9:16 --style raw --v 6</div>
   </div>
 </div>
 
 
 <!-- 03 NB PROMPTS -->
 <div id="nb" class="content">
-  <div class="section-title">Nano Banana prompt system — two workflows</div>
+  <div class="section-title">Nano Banana prompt system — status + two workflows</div>
 
-  <div class="warning">⚠ "Nano Banana" tool not yet confirmed. These prompts are written tool-agnostically and work with Midjourney, Flux Dev, GPT-4o image edit, and ComfyUI. Confirm your tool and I'll rewrite with exact syntax and parameters for it.</div>
+  <div class="warning">⚠ IMPORTANT: These prompts are currently written tool-agnostically. "Nano Banana" has not been confirmed — its exact input syntax (structured text, JSON, reference weight controls, img2img parameters) is unknown. Once the tool is confirmed, these prompts must be rewritten with NB-specific syntax and parameter names. Until then, treat these as universal prompt logic that works across Midjourney, Flux Dev, ComfyUI, and GPT-4o image edit.</div>
 
   <div class="grid-2" style="margin-bottom:20px">
     <div class="block">
       <div class="block-title">Prompt A — Image(s) → ISO</div>
-      <p>Give it one or more real photos. It reads the space and people, and reconstructs everything as a Sunsex isometric scene. No sketch needed. Faster, less controlled.</p>
+      <p>Give it one or more real photos. It reads the space and people, and reconstructs everything as a Sunsex isometric scene. No sketch needed. Faster, less controlled. <b>Known issue: proportion distortion from perspective. Fix language included.</b></p>
     </div>
     <div class="block">
       <div class="block-title">Prompt B — Sketch + Image → ISO</div>
-      <p>Give it a layout sketch (your camera angle + object positions) AND real photos of the space (your textures + materials). Merges both into one controlled render. More work, far more control.</p>
+      <p>Give it a layout sketch (your camera angle + object positions) AND real photos of the space (textures + materials). Merges both into one controlled render. More work, far more control. Best for Prompt B fix.</p>
     </div>
   </div>
 
   <div class="section-title">Prompt A — image(s) → isometric render</div>
 
-  <div class="prompt-box blue">
-    <span class="prompt-label blue">SSX — NB PROMPT A v1.0 — IMAGE(S) → ISOMETRIC RENDER</span>
-    <button class="copy-btn" onclick="copyPrompt('nb_a')">COPY</button>
-    <div class="prompt-code" id="nb_a"><span class="c-comment">// ATTACH YOUR PHOTO(S) AS IMAGE REFERENCE BEFORE THIS PROMPT</span>
-<span class="c-comment">// MJ: paste image URL first, --iw 1.5, --cref for character ref</span>
-<span class="c-comment">// Flux: img2img mode, denoising strength 0.55–0.65</span>
+  <div class="block" style="border-color:var(--red);background:#0d0808">
+    <div class="block-title" style="color:var(--red)">Known Problem — Proportion Distortion</div>
+    <p>When the model reads a perspective photo, it interprets apparent visual size as real-world size. An object closest to the camera (e.g. a bench) fills more frame and is reconstructed at building-scale. The fix: supply real-world dimensions as semantic anchors in the prompt, and optionally supply a high-angle or aerial photo of the same scene as a secondary reference so the model can read actual spatial footprints.</p>
+    <br>
+    <span class="tag tag-red">perspective ≠ real scale</span>
+    <span class="tag tag-yellow">fix: semantic anchors</span>
+    <span class="tag tag-blue">fix: aerial reference photo</span>
+  </div>
 
-<span class="c-inject">[ATTACH: real photo(s) of the space and/or person]</span>
+  <div class="block" style="border-color:var(--blue);background:#080e16">
+    <div class="block-title" style="color:var(--blue)">Two-Photo Input Strategy — Recommended</div>
+    <p>Whenever possible, supply two photos of the same scene to Prompt A:</p>
+    <br>
+    <p><b>Photo A (primary):</b> Ground-level or eye-level iPhone shot → provides texture, material, mood, lighting, and identity.</p>
+    <br>
+    <p><b>Photo B (secondary):</b> High-angle, aerial, or overhead shot of the same location → provides real spatial footprints, true proportional relationships between objects, and correct ground plane layout.</p>
+    <br>
+    <p>The model reads Photo B for structure/scale, Photo A for material/mood. This is the fastest fix for proportion distortion without needing a hand-drawn sketch.</p>
+    <br>
+    <span class="tag tag-green">ground photo = texture + mood</span>
+    <span class="tag tag-green">aerial photo = scale + footprints</span>
+  </div>
+
+  <div class="prompt-box blue">
+    <span class="prompt-label blue">SSX — NB PROMPT A v1.1 — IMAGE(S) → ISOMETRIC RENDER (PROPORTION FIX)</span>
+    <button class="copy-btn" onclick="copyPrompt('nb_a')">COPY</button>
+    <div class="prompt-code" id="nb_a"><span class="c-comment">// ATTACH YOUR PHOTO(S) BEFORE THIS PROMPT</span>
+<span class="c-comment">// RECOMMENDED: attach two photos if available —</span>
+<span class="c-inject">  [PHOTO A: ground-level / eye-level shot → texture, mood, identity, lighting]</span>
+<span class="c-inject">  [PHOTO B: high-angle / aerial shot of same scene → spatial layout, real scale]</span>
+<span class="c-comment">// If only one photo: use ground shot, rely on scale anchor text below</span>
+<span class="c-comment">// MJ: paste image URLs first, --iw 1.5</span>
+<span class="c-comment">// Flux: img2img mode, strength 0.55–0.65</span>
+<span class="c-comment">// NB: syntax TBD — confirm tool parameters before final version</span>
 
 Isometric reconstruction of the attached scene.
 Preserve all subjects, objects, spatial relationships, and identity exactly.
 Do not invent new elements — reconstruct only what exists in the reference.
+
+<span class="c-fix">// ── PROPORTION FIX — CRITICAL ──────────────────────────────
+All objects must be reconstructed at their TRUE real-world scale.
+The reference photo uses perspective — objects appear larger when closer to camera.
+IGNORE apparent visual size. Reconstruct at actual physical dimensions.
+
+Real-world scale anchors for this scene:
+[FILL IN OBJECT DIMENSIONS — examples below, replace with scene-specific:]
+  Human figure = approximately 1.8 meters tall
+  Park bench = approximately 1.5 meters long, 0.5 meters tall
+  Canal boat (small) = approximately 5–8 meters long
+  Car = approximately 4.5 meters long, 1.5 meters tall
+  4-story building = approximately 12 meters tall
+  Tree (mature) = approximately 8–15 meters tall
+
+In the isometric output: buildings must be dramatically larger than boats,
+boats dramatically larger than benches, benches dramatically larger than humans.
+Do NOT scale elements by how large they appeared in the reference photo.</span>
 
 <span class="c-locked">Camera transformation:
 Rotate scene to isometric view — 45 degrees horizontal, 33 degrees vertical tilt down.
@@ -458,10 +477,11 @@ Apply telephoto compression — 300mm equivalent focal length.
 Eliminate wide-angle distortion. Vertical lines become perfectly vertical.
 No perspective convergence. Lines stay parallel. Orthographic influence.
 
-Lighting transformation:
-Convert to soft diffused natural top-left key, overcast ambient fill.
-Remove harsh shadows. Add soft ground shadows beneath figures and objects.
-Slight cinematic grade, neutral-warm tone. iPhone photography realism.
+Lighting:
+Match lighting conditions from the reference image. iPhone photography realism.
+Preserve the mood, direction, and quality of light that exists in the input.
+Ground shadows beneath all figures and objects — hardness matches scene light.
+Do not invent dramatic lighting not present in the reference.
 
 Material treatment:
 Keep all surfaces photoreal. Slightly clean and sharpen textures.
@@ -483,16 +503,17 @@ AAA isometric game environment.</span>
   <div class="section-title" style="margin-top:24px">Prompt B — sketch + space photos → controlled isometric render</div>
 
   <div class="block" style="margin-bottom:16px">
-    <div class="block-title">Why Prompt B is more powerful</div>
-    <p>Prompt A lets the AI guess the camera angle from your photos. Prompt B locks the camera angle, object positions, and spatial layout via your sketch — then fills in photoreal detail from your reference photos. The sketch controls the architecture. The photos provide the skin. This is the professional pipeline.</p>
+    <div class="block-title">Why Prompt B solves proportion by design</div>
+    <p>Prompt A lets the AI guess camera angle AND scale from your photos. Prompt B locks both via your sketch — which shows true spatial relationships and object footprints at correct proportions. If proportion distortion is a recurring issue in Prompt A results, the answer is Prompt B. The sketch is a 5-minute rough layout, not a detailed drawing.</p>
   </div>
 
   <div class="prompt-box green">
     <span class="prompt-label green">SSX — NB PROMPT B v1.0 — SKETCH + IMAGES → CONTROLLED ISOMETRIC RENDER</span>
     <button class="copy-btn" onclick="copyPrompt('nb_b')">COPY</button>
     <div class="prompt-code" id="nb_b"><span class="c-comment">// ATTACH BOTH REFERENCES:</span>
-<span class="c-inject">[REFERENCE A: isometric layout sketch — camera angle + object positions]</span>
+<span class="c-inject">[REFERENCE A: isometric layout sketch — camera angle + object positions + true scale footprints]</span>
 <span class="c-inject">[REFERENCE B: real photos of the space — textures, materials, lighting, detail]</span>
+<span class="c-comment">// NB: syntax TBD — confirm tool parameters before final version</span>
 
 Render the space shown in Reference B
 using the layout, camera angle, and object placement from Reference A
@@ -501,6 +522,7 @@ as the controlling structure.
 Reference A controls:
 - Camera angle and elevation (match exactly)
 - Object positions and spatial layout
+- True proportional relationships between objects
 - Scene boundaries and frame crop
 - Player / figure placement and scale
 - Entry and exit flow through the space
@@ -518,16 +540,16 @@ Telephoto compression — 300mm equivalent. No wide-angle distortion.
 Vertical lines stay perfectly vertical. No perspective convergence.
 Parallel lines remain parallel. Orthographic influence throughout.
 
-Lighting — from Reference B, cleaned:
-Take lighting character from Reference B.
-Clean and soften: remove harsh shadows, add soft diffused ambient fill.
-Gentle top-left key. Ground shadows beneath all figures and objects.
+Lighting — from Reference B, match and clean:
+Take all lighting character from Reference B.
+Clean and soften only: remove harshness, add soft ambient fill where needed.
+Ground shadows beneath all figures and objects.
 Slight cinematic grade. iPhone photography realism.
 
 Materials — from Reference B, exact:
-Replicate all materials and surfaces from Reference B exactly.
+Replicate all materials and surfaces exactly.
 Slightly clean: remove grain and compression. Keep texture character.
-No invented materials. What exists in Reference B appears in output.
+No invented materials.
 
 Figures — from Reference B, placed per Reference A:
 Place figure(s) at positions shown in Reference A sketch.
@@ -544,24 +566,13 @@ not a photo, not a drawing — a rendered reconstruction of a real space.</span>
 <span class="c-comment">// MJ: paste both image URLs before prompt</span></div>
   </div>
 
-  <div class="section-title" style="margin-top:24px">Best tool for Prompt B</div>
-  <div class="block" style="border-color:var(--gold)">
-    <div class="block-title" style="color:var(--gold)">ComfyUI + ControlNet — recommended for Prompt B</div>
-    <p>Use ControlNet depth or canny map from your sketch as the structural guide. Use img2img from your space photos for texture and material. Free, local, no API cost. Setup time 2–4 hours first time. Highest consistency and control of any available tool for this specific two-reference workflow.</p>
-    <br>
-    <span class="tag tag-green">depth controlnet from sketch</span>
-    <span class="tag tag-green">img2img from photos</span>
-    <span class="tag tag-yellow">free + local</span>
-    <span class="tag tag-blue">highest consistency</span>
-  </div>
-
   <div class="section-title" style="margin-top:24px">Common generation fixes</div>
   <div class="grid-2">
+    <div class="block"><div class="block-title">Proportion wrong (objects same size)</div><p>Add: "All objects at true real-world scale. [Name dimensions for each object]. Buildings dramatically larger than vehicles, vehicles larger than people. Ignore apparent size in reference."</p></div>
     <div class="block"><div class="block-title">Camera too steep (bird's eye)</div><p>Add: "33 degrees vertical only — NOT top-down, NOT bird's eye, front face of buildings must be clearly visible, more wall than roof"</p></div>
     <div class="block"><div class="block-title">Figure too large</div><p>Add: "human figure occupies maximum one-quarter of frame height, environment dominates, small figure in large world"</p></div>
     <div class="block"><div class="block-title">Perspective distorting</div><p>Add: "zero wide-angle distortion, strict orthographic camera, no converging lines, all vertical edges perfectly parallel"</p></div>
-    <div class="block"><div class="block-title">Lighting too dramatic</div><p>Add: "overcast diffused light only, no dramatic shadows, flat natural daylight, no directional sunbeams, no god rays"</p></div>
-    <div class="block"><div class="block-title">Materials too stylized</div><p>Add: "photorealistic only, no painterly rendering, no illustration style, no concept art aesthetic, real-world surface fidelity"</p></div>
+    <div class="block"><div class="block-title">Lighting too dramatic</div><p>Add: "match reference image lighting only, do not invent dramatic light, overcast diffused quality, no god rays"</p></div>
     <div class="block"><div class="block-title">Identity not preserved</div><p>Add: "preserve exact clothing, hairstyle, skin tone, build from reference — do not alter or stylize the person in any way"</p></div>
   </div>
 </div>
@@ -592,7 +603,7 @@ not a photo, not a drawing — a rendered reconstruction of a real space.</span>
     <div class="scene-card">
       <div class="scene-name">ssx_iso__sa_penguin_beach.png</div>
       <div class="scene-tags"><span class="tag tag-yellow">exterior</span><span class="tag tag-green">nature</span><span class="tag tag-green">APPROVED</span></div>
-      <div class="scene-notes">South Africa Boulders Beach. Turquoise clear ocean water. Large granite boulders. Player in yellow top + dark shorts standing on rock island. African penguins as secondary world inhabitants distributed across rocks and water. High natural light.</div>
+      <div class="scene-notes">South Africa Boulders Beach. Turquoise clear ocean water. Large granite boulders. Player in yellow top + dark shorts standing on rock island. African penguins distributed across rocks and water. High natural light.</div>
     </div>
     <div class="scene-card">
       <div class="scene-name">ssx_iso__bruno_concrete_yard.png</div>
@@ -605,14 +616,14 @@ not a photo, not a drawing — a rendered reconstruction of a real space.</span>
       <div class="scene-notes">Raw concrete loft space. White painted staircase upper-right. Tropical plants in black pots. Ground-level haze on concrete. Munz in yellow hoodie + black jacket reading an open book. Silver SSX cube beside feet. Atmospheric interior mood.</div>
     </div>
     <div class="scene-card">
-      <div class="scene-name">ssx_ref__pipeline_demo_sheet.png</div>
-      <div class="scene-tags"><span class="tag tag-blue">reference</span><span class="tag tag-blue">pipeline</span></div>
-      <div class="scene-notes">Input → output comparison sheet. Shows 4 pairs of real iPhone photos and their isometric reconstruction. Documents the early pipeline logic: photo angle, character extraction, scene elevation, lighting conversion. Not a final scene — a process document.</div>
+      <div class="scene-name">ssx_iso__amsterdam_canal.png</div>
+      <div class="scene-tags"><span class="tag tag-yellow">exterior</span><span class="tag tag-blue">urban / water</span><span class="tag tag-red">IN PROGRESS</span></div>
+      <div class="scene-notes">Amsterdam canal scene. Dark canal water, red weathered boat (foreground), white motorboat (mid-canal), weeping willow tree, dark brick 4-story apartments across the canal. Parked cars on canal street. Proportion fix required — test scene for Prompt A v1.1.</div>
     </div>
     <div class="scene-card">
-      <div class="scene-name">ssx_ref__four_scene_grid.png</div>
-      <div class="scene-tags"><span class="tag tag-blue">reference</span><span class="tag tag-blue">grid</span></div>
-      <div class="scene-notes">2x2 grid of four approved SSX scenes in one frame. Top-left: blue gallery/museum with sculptures (external reference/aspiration). Top-right: gallery giant hand (Munz). Bottom-left: munz reading + cube. Bottom-right: munz on grass + cube. Used as style consistency reference sheet.</div>
+      <div class="scene-name">ssx_ref__pipeline_demo_sheet.png</div>
+      <div class="scene-tags"><span class="tag tag-blue">reference</span><span class="tag tag-blue">pipeline</span></div>
+      <div class="scene-notes">Input → output comparison sheet. Shows 4 pairs of real iPhone photos and their isometric reconstruction. Documents the early pipeline logic. Not a final scene — a process document.</div>
     </div>
   </div>
 
@@ -620,7 +631,7 @@ not a photo, not a drawing — a rendered reconstruction of a real space.</span>
   <div class="grid-3">
     <div class="block"><div class="block-title">Interior — Creative</div><p>Studios, compound rooms, galleries, bedrooms, workspaces. Character is inhabitant. Objects tell the story.</p></div>
     <div class="block"><div class="block-title">Interior — Surreal</div><p>Real room + impossible object or scale shift. Giant hand. Oversized props. Reality bent but grounded in real architecture.</p></div>
-    <div class="block"><div class="block-title">Exterior — Urban</div><p>Streets, corners, yards, rooftops. Concrete, asphalt, graffiti, signage. City as game world.</p></div>
+    <div class="block"><div class="block-title">Exterior — Urban</div><p>Streets, corners, yards, rooftops, canals. Concrete, asphalt, graffiti, signage, water. City as game world.</p></div>
     <div class="block"><div class="block-title">Exterior — Nature</div><p>Beaches, rocks, grass, forests. Player in raw landscape. Scale of nature vs human.</p></div>
     <div class="block"><div class="block-title">Portrait Yard</div><p>Single character, minimal environment. Focus on identity + posture. Bruno archetype. Raw + confident.</p></div>
     <div class="block"><div class="block-title">Social / Multi-player</div><p>2+ characters in scene. Interaction, tension, or energy between them. Sephrina archetype.</p></div>
@@ -702,14 +713,16 @@ not a photo, not a drawing — a rendered reconstruction of a real space.</span>
     <div class="phase-num">00</div>
     <div class="phase-body">
       <div class="phase-label">NOW — Active</div>
-      <div class="phase-title">Lock the Visual Bible + Prompt System</div>
+      <div class="phase-title">Lock Visual Bible + Prompt System</div>
       <ul class="phase-items">
-        <li>Camera angle, light direction, color grade — locked in writing ✓</li>
-        <li>Master Prompt v1 built ✓</li>
-        <li>NB Prompt A + B built ✓</li>
-        <li>Scene registry started — 8 scenes catalogued ✓</li>
-        <li>Master document merged and on GitHub → in progress</li>
-        <li>Confirm "nano banana" tool + rewrite prompts for exact syntax</li>
+        <li>Camera angle, light, material rules — locked ✓</li>
+        <li>Lighting changed to per-scene (match reference) ✓</li>
+        <li>Proportion fix added to Prompt A ✓</li>
+        <li>Master Prompt v1.1 built ✓</li>
+        <li>NB Prompt A v1.1 + Prompt B v1.0 built ✓</li>
+        <li>Scene registry: 9 scenes ✓ (Amsterdam canal in progress)</li>
+        <li>Confirm Nano Banana tool + rewrite prompts with exact syntax — PENDING</li>
+        <li>Push master doc to GitHub — PENDING</li>
       </ul>
     </div>
   </div>
@@ -721,10 +734,11 @@ not a photo, not a drawing — a rendered reconstruction of a real space.</span>
       <div class="phase-title">Photo → Scene Pipeline (manual)</div>
       <ul class="phase-items">
         <li>Working prompt system: any photo → consistent isometric scene</li>
+        <li>Proportion fix validated across multiple scene types</li>
         <li>Character extraction workflow (SAM2 / remove.bg)</li>
         <li>Manual compositing in Photoshop / Affinity</li>
         <li>Target: 1 finished scene per work session, reliably</li>
-        <li>Build up scene registry to 20+ approved stills</li>
+        <li>Build scene registry to 20+ approved stills</li>
       </ul>
     </div>
   </div>
@@ -861,20 +875,20 @@ not a photo, not a drawing — a rendered reconstruction of a real space.</span>
 <div id="tools" class="content">
   <div class="section-title">Scene generation</div>
   <div class="tool-row"><div class="tool-name">Midjourney v6</div><div class="tool-use">Primary creative tool. Best aesthetic quality for manual pipeline. Use --cref for character fidelity, --sref for style reference, --iw for reference image weight.</div><div class="tool-cost">~$10/mo</div></div>
-  <div class="tool-row"><div class="tool-name">Flux Dev (Replicate)</div><div class="tool-use">API-accessible generation. Automate into pipeline. Slightly less quality than MJ but scalable and programmable. img2img at strength 0.55–0.65 for transformations.</div><div class="tool-cost">Pay per run</div></div>
-  <div class="tool-row"><div class="tool-name">ComfyUI (local)</div><div class="tool-use">Best for Prompt B (sketch → iso). ControlNet depth/canny from sketch + img2img from photos. Full pipeline control. Free and local. Steeper setup.</div><div class="tool-cost">Free</div></div>
-  <div class="tool-row"><div class="tool-name">Nano Banana</div><div class="tool-use">Tool to be confirmed. Prompts A + B are ready — pending exact tool name to rewrite with correct syntax and parameters.</div><div class="tool-cost s-tbd" style="color:var(--red)">TBD</div></div>
+  <div class="tool-row"><div class="tool-name">Flux Dev (Replicate)</div><div class="tool-use">API-accessible generation. Automate into pipeline. img2img at strength 0.55–0.65 for transformations.</div><div class="tool-cost">Pay per run</div></div>
+  <div class="tool-row"><div class="tool-name">ComfyUI (local)</div><div class="tool-use">Best for Prompt B. ControlNet depth/canny from sketch + img2img from photos. Full pipeline control. Free and local.</div><div class="tool-cost">Free</div></div>
+  <div class="tool-row"><div class="tool-name">Nano Banana</div><div class="tool-use">Tool to be confirmed. Prompts A v1.1 + B v1.0 are ready — pending exact tool name to rewrite with NB-specific syntax and parameter names.</div><div class="tool-cost" style="color:var(--red)">CONFIRM TOOL</div></div>
 
   <div class="section-title" style="margin-top:24px">Character + compositing</div>
   <div class="tool-row"><div class="tool-name">SAM2 (Meta)</div><div class="tool-use">State-of-art segmentation. Extract character from any photo with clean edges. Via Replicate API or local.</div><div class="tool-cost">API / free local</div></div>
-  <div class="tool-row"><div class="tool-name">Remove.bg</div><div class="tool-use">Fast background removal for quick manual pipeline passes. Good first-pass tool.</div><div class="tool-cost">~$9/mo</div></div>
+  <div class="tool-row"><div class="tool-name">Remove.bg</div><div class="tool-use">Fast background removal for quick manual pipeline passes.</div><div class="tool-cost">~$9/mo</div></div>
   <div class="tool-row"><div class="tool-name">Photoshop / Affinity</div><div class="tool-use">Scene compositing, character placement, color grading, HUD overlay text, final output polish.</div><div class="tool-cost">$20/mo or $70 one-time</div></div>
 
-  <div class="section-title" style="margin-top:24px">Dev + infrastructure (connected)</div>
+  <div class="section-title" style="margin-top:24px">Dev + infrastructure</div>
   <div class="tool-row"><div class="tool-name">Supabase</div><div class="tool-use">Auth + database + file storage for scenes, user data, memory archives. Connected.</div><div class="tool-cost">Free tier</div></div>
   <div class="tool-row"><div class="tool-name">Vercel</div><div class="tool-use">Web deployment. Instant preview URLs. Connected.</div><div class="tool-cost">Free tier</div></div>
   <div class="tool-row"><div class="tool-name">Three.js</div><div class="tool-use">Web 3D / 2.5D scene rendering. Isometric camera + parallax layers + character movement.</div><div class="tool-cost">Free</div></div>
-  <div class="tool-row"><div class="tool-name">GitHub</div><div class="tool-use">Host this master doc (ssx_master.html) as raw URL. Claude fetches it each session. Single source of truth.</div><div class="tool-cost">Free</div></div>
+  <div class="tool-row"><div class="tool-name">GitHub</div><div class="tool-use">Host this master doc as raw URL. Claude fetches it each session. Single source of truth.</div><div class="tool-cost">Free</div></div>
 
   <div class="section-title" style="margin-top:24px">Organization</div>
   <div class="tool-row"><div class="tool-name">Notion</div><div class="tool-use">Project doc, scene log, weekly task board, supplementary notes.</div><div class="tool-cost">Free</div></div>
@@ -892,47 +906,22 @@ not a photo, not a drawing — a rendered reconstruction of a real space.</span>
   <div class="block">
     <div class="block-title">How to set it up</div>
     <p>1. Create a GitHub repo (can be private) — suggested name: <b>sunsex-docs</b></p><br>
-    <p>2. Upload <b>ssx_master.html</b> to the repo</p><br>
-    <p>3. Get the raw URL: <b>https://raw.githubusercontent.com/[username]/sunsex-docs/main/ssx_master.html</b></p><br>
+    <p>2. Upload <b>ssx_master_v2.1.html</b> to the repo (always use latest version)</p><br>
+    <p>3. Get the raw URL: <b>https://raw.githubusercontent.com/[username]/sunsex-docs/main/ssx_master_v2.1.html</b></p><br>
     <p>4. Add this one line to Claude Project Instructions:</p>
   </div>
 
   <div class="context-block"><span class="ctx-label">ADD TO CLAUDE PROJECT INSTRUCTIONS — ONE LINE</span>Always fetch the live SSX master document at the start of every session:
-https://raw.githubusercontent.com/[YOUR-USERNAME]/sunsex-docs/main/ssx_master.html</div>
+https://raw.githubusercontent.com/[YOUR-USERNAME]/sunsex-docs/main/ssx_master_v2.1.html</div>
 
-  <div class="section-title">Session workflow — how updates work</div>
+  <div class="section-title">Session workflow</div>
   <div style="margin-top:12px;margin-bottom:20px">
     <div class="flow-row"><div class="flow-node">Start session</div><div class="flow-arrow">→</div><div class="flow-node">Claude fetches raw GitHub URL</div></div>
     <div class="flow-row"><div class="flow-node">Work session</div><div class="flow-arrow">→</div><div class="flow-node">Build, prompt, decide, create</div></div>
-    <div class="flow-row"><div class="flow-node">End of session</div><div class="flow-arrow">→</div><div class="flow-node">Claude outputs updated ssx_master.html</div></div>
+    <div class="flow-row"><div class="flow-node">End of session</div><div class="flow-arrow">→</div><div class="flow-node">Claude outputs updated ssx_master_vX.X.html</div></div>
     <div class="flow-row"><div class="flow-node">You download</div><div class="flow-arrow">→</div><div class="flow-node">Push to GitHub — doc is live</div></div>
     <div class="flow-row"><div class="flow-node">Next session</div><div class="flow-arrow">→</div><div class="flow-node">Claude fetches again — full context restored</div></div>
   </div>
-
-  <div class="section-title">Master context block — for new sessions before GitHub is live</div>
-  <div class="context-block"><span class="ctx-label">PASTE AT START OF EVERY NEW SESSION (UNTIL GITHUB IS LIVE)</span>I am building SUNSEX — a real-life reflection engine that converts real
-photos/videos/locations into cinematic isometric scenes that feel like
-playable game levels.
-
-VISUAL RULES (strict):
-- Camera: 45° horizontal rotation, 33° vertical tilt down (NOT 45°)
-- FOV: telephoto compression, 200–400mm equivalent, orthographic influence
-- Light: soft natural top-left key, overcast fill, no harsh shadows
-- Materials: photoreal base, slightly simplified
-- Lines: clean verticals, no perspective convergence
-- Every scene: entry point + primary zone + secondary detail + background
-
-PLATFORM: PWA web-first. Stack: React + Three.js + Supabase + Vercel.
-MASTER DOC: ssx_master.html — hosted on GitHub (URL TBD)
-MASTER PROMPT: v1 complete — see ssx_master.html tab 02
-NB PROMPTS: A + B complete — tool TBD — see ssx_master.html tab 03
-SCENE REGISTRY: 8 scenes catalogued — see ssx_master.html tab 04
-SSX CUBE: silver/concrete ~30cm cube — recurring game object, confirmed
-
-CURRENT PHASE: Phase 00 — Locking pipeline + pushing doc to GitHub
-
-YOUR ROLE: Art Director + Pipeline Engineer + Game Designer + Systems Thinker.
-Think in systems. Prioritize consistency over novelty. No overcomplicating.</div>
 
   <div class="section-title">Claude's responsibilities</div>
   <div class="grid-2">
@@ -953,12 +942,6 @@ Think in systems. Prioritize consistency over novelty. No overcomplicating.</div
       <p>Weekly planning. Break phases into daily tasks. Maintain this master document. Flag scope creep. Update session log. Keep project from sprawling.</p>
     </div>
   </div>
-
-  <div class="section-title">Weekly rhythm</div>
-  <div class="week-row"><div class="week-day">MON</div><div class="week-tasks"><b>Planning session.</b> Fetch master doc. Review last week. Set 3 goals. Assign Claude task.</div></div>
-  <div class="week-row"><div class="week-day">TUE–THU</div><div class="week-tasks"><b>Build sessions.</b> Specific problems — prompts, code, copy. One concrete output per session minimum.</div></div>
-  <div class="week-row"><div class="week-day">FRI</div><div class="week-tasks"><b>Scene production day.</b> Run full pipeline. Produce 1–3 Sunsex scenes. Evaluate against Visual Bible. Log results.</div></div>
-  <div class="week-row"><div class="week-day">SUN</div><div class="week-tasks"><b>Review + update.</b> What worked, what didn't. Update master doc. Push to GitHub. Ready for Monday.</div></div>
 </div>
 
 
@@ -982,7 +965,7 @@ Think in systems. Prioritize consistency over novelty. No overcomplicating.</div
   <div class="grid-2">
     <div class="block">
       <div class="block-title">VC Targets</div>
-      <p>Gaming-adjacent funds. Creator economy investors. Digital identity / avatar plays. Consumer social with culture angle. Study who funded: Genies, Ready Player Me, BeReal, Locket Widget, Zepeto. Those investor networks are the target.</p>
+      <p>Gaming-adjacent funds. Creator economy investors. Digital identity / avatar plays. Consumer social with culture angle. Study who funded: Genies, Ready Player Me, BeReal, Locket Widget, Zepeto.</p>
     </div>
     <div class="block">
       <div class="block-title">Brand Partners (faster money)</div>
@@ -1000,30 +983,34 @@ Think in systems. Prioritize consistency over novelty. No overcomplicating.</div
   <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">Camera spec locked: 45° horizontal rotation, -33° vertical tilt (NOT -45°). More front face than top. This distinguishes SSX from standard isometric.</div><div class="decision-status s-locked">LOCKED</div></div>
   <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">FOV locked: as flat/orthographic as possible. In 3D: 200–400mm+ equivalent. Camera pulled far back. No wide-angle distortion.</div><div class="decision-status s-locked">LOCKED</div></div>
   <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">File naming convention established: ssx_iso__[character/location]_[descriptor].png — double underscore after prefix, all lowercase.</div><div class="decision-status s-locked">LOCKED</div></div>
-  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">SSX Cube confirmed as canonical recurring game object. Matte silver/concrete, ~30cm, appears near player. Collectible anchor. Optional per scene.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">SSX Cube confirmed as canonical recurring game object. Matte silver/concrete, ~30cm, appears near player. Optional per scene.</div><div class="decision-status s-locked">LOCKED</div></div>
   <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">Master Prompt v1 built and locked. Full variable system defined. Works for Midjourney v6 and Flux Dev.</div><div class="decision-status s-locked">LOCKED</div></div>
-  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">NB Prompt A (image → iso) and Prompt B (sketch + image → controlled iso) built. Tool "nano banana" not yet confirmed — prompts tool-agnostic pending confirmation.</div><div class="decision-status s-tbd">TOOL TBD</div></div>
-  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">GitHub hosting strategy decided. Master doc (ssx_master.html) to be hosted as raw URL. Claude fetches at session start for persistent context. One instruction line in Claude Project.</div><div class="decision-status s-open">IN PROGRESS</div></div>
-  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">Scene registry established. 8 scenes catalogued with names, tags, and descriptions. Working scene taxonomy defined: 6 categories.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">NB Prompt A and Prompt B built. Tool "Nano Banana" not confirmed — prompts tool-agnostic pending NB syntax confirmation.</div><div class="decision-status s-tbd">TOOL TBD</div></div>
   <div class="decision-row"><div class="decision-date">May 2026<br>Session 01</div><div class="decision-text">HUD overlay spec locked: monospace text, bottom-left, 10–12px, 60–80% opacity. Three lines: version, coordinates, memory ID.</div><div class="decision-status s-locked">LOCKED</div></div>
 
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 02</div><div class="decision-text">LIGHTING CHANGED: No longer globally locked. Now per-scene. Default = match reference image lighting. iPhone realism as baseline. Cinematic options valid per scene. Only shadow grounding remains locked.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 02</div><div class="decision-text">PROPORTION FIX: Identified that AI reads apparent visual size (perspective distortion) as real-world scale. Fix = semantic scale anchors in prompt + aerial/high-angle secondary reference photo when available. Added to Prompt A v1.1 and Visual Bible.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 02</div><div class="decision-text">TWO-PHOTO INPUT STRATEGY: Ground photo = texture/mood/identity. Aerial/high-angle photo = spatial footprints/true scale. Supply both to Prompt A when available. Documented in NB Prompts tab.</div><div class="decision-status s-locked">LOCKED</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 02</div><div class="decision-text">NB PROMPTS CONFIRMED tool-agnostic. Must be rewritten with NB-specific syntax once tool is identified. Warning banner added to NB Prompts tab. Prompts versioned: A v1.1, B v1.0.</div><div class="decision-status s-tbd">TOOL TBD</div></div>
+  <div class="decision-row"><div class="decision-date">May 2026<br>Session 02</div><div class="decision-text">Amsterdam canal scene added to scene registry as IN PROGRESS. Used as test case for Prompt A v1.1 proportion fix. Two reference photos exist: ground-level iPhone shot + steep aerial telephoto shot of same scene.</div><div class="decision-status s-open">IN PROGRESS</div></div>
+
   <div class="section-title" style="margin-top:32px">Open questions — to resolve next session</div>
-  <div class="decision-row"><div class="decision-date">OPEN</div><div class="decision-text">What tool is "nano banana"? Confirm so NB Prompts A + B can be rewritten with exact syntax and parameters.</div><div class="decision-status s-tbd">RESOLVE NEXT</div></div>
-  <div class="decision-row"><div class="decision-date">OPEN</div><div class="decision-text">GitHub repo URL — create sunsex-docs repo, push ssx_master.html, provide raw URL for Claude project instruction.</div><div class="decision-status s-tbd">RESOLVE NEXT</div></div>
-  <div class="decision-row"><div class="decision-date">OPEN</div><div class="decision-text">First scene production session — what's the next photo/input going into the pipeline to test Master Prompt v1?</div><div class="decision-status s-tbd">RESOLVE NEXT</div></div>
+  <div class="decision-row"><div class="decision-date">OPEN</div><div class="decision-text">What tool is "Nano Banana"? Confirm so NB Prompts A + B can be rewritten with exact syntax, parameter names, and reference input format.</div><div class="decision-status s-tbd">RESOLVE NEXT</div></div>
+  <div class="decision-row"><div class="decision-date">OPEN</div><div class="decision-text">GitHub repo URL — create sunsex-docs repo, push ssx_master_v2.1.html, provide raw URL for Claude project instruction.</div><div class="decision-status s-tbd">RESOLVE NEXT</div></div>
+  <div class="decision-row"><div class="decision-date">OPEN</div><div class="decision-text">Run Prompt A v1.1 on Amsterdam canal scene (with both ground + aerial photos) — validate proportion fix. Document result.</div><div class="decision-status s-tbd">NEXT TEST</div></div>
 
   <div class="section-title" style="margin-top:32px">What has been built — inventory</div>
   <div class="block">
     <div class="block-title">Completed outputs — May 2026</div>
     <p style="font-family:'Space Mono',monospace;font-size:11px;color:#666;line-height:2.2">
       ✓ &nbsp;sunsex_master_plan.html &nbsp;&nbsp; — &nbsp; original strategy document (April 2026)<br>
-      ✓ &nbsp;ssx_master_prompt_v1.html &nbsp; — &nbsp; prompt system standalone (May 2026, superseded)<br>
-      ✓ &nbsp;ssx_master.html &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; <span style="color:var(--gold)">THIS FILE — merged master document v2.0</span><br>
-      ✓ &nbsp;Visual Bible &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; all camera, light, material, scene rules locked<br>
-      ✓ &nbsp;Master Prompt v1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; universal scene generation formula<br>
-      ✓ &nbsp;NB Prompt A &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; image(s) → isometric render<br>
-      ✓ &nbsp;NB Prompt B &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; sketch + images → controlled iso render<br>
-      ✓ &nbsp;Scene Registry &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; 8 scenes named, tagged, described<br>
+      ✓ &nbsp;ssx_master.html &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; merged master document v2.0 (May 2026, Session 01)<br>
+      ✓ &nbsp;ssx_master_v2.1.html &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; <span style="color:var(--gold)">THIS FILE — per-scene lighting + proportion fix (Session 02)</span><br>
+      ✓ &nbsp;Visual Bible &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; camera locked, lighting now per-scene, proportion rules added<br>
+      ✓ &nbsp;Master Prompt v1.1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; proportion anchors + per-scene lighting<br>
+      ✓ &nbsp;NB Prompt A v1.1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; proportion fix block + two-photo strategy<br>
+      ✓ &nbsp;NB Prompt B v1.0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; sketch + images → controlled iso render<br>
+      ✓ &nbsp;Scene Registry &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; 9 scenes (8 approved + Amsterdam canal in progress)<br>
       ✓ &nbsp;Naming Convention &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — &nbsp; ssx_iso__[name]_[descriptor].png
     </p>
   </div>
@@ -1051,3 +1038,4 @@ Think in systems. Prioritize consistency over novelty. No overcomplicating.</div
 </script>
 </body>
 </html>
+
