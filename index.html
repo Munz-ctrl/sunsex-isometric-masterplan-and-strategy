@@ -265,7 +265,7 @@
   </div>
 
   <!-- DEBUG PANEL -->
-  <div id="debug-panel" id="debug-panel"></div>
+  <div id="debug-panel"></div>
 
   <!-- TOUCH CONTROLS -->
   <div id="touch-controls">
@@ -294,6 +294,7 @@
 // Tune TILE_HALF_H between 18–24 to adjust tilt feel.
 const TILE_HALF_W = 32;
 const TILE_HALF_H = 21; // SSX 33° tilt — EDIT THIS TO TUNE CAMERA ANGLE
+const TILE_Z      = 32; // pixels per world height unit — keep proportional to TILE_HALF_W
 
 const VIEW_W = 1068;
 const VIEW_H = 600;
@@ -392,7 +393,7 @@ const sceneObjects = [
     title: 'TERMINAL_01',
     body: 'A dormant console. The screen flickers faintly.\n\nStatus: OFFLINE\nLast session: unknown\nMemory block: [corrupted]',
     img: null,
-    draw(ctx, sx, sy) { drawIsoBox(ctx, sx, sy, this.w, this.h, '#1e2240', '#252a4a', '#1a1e38'); }
+    draw(ctx, cx, cy) { drawIsoBox(ctx, cx, cy, TILE_Z, '#1e2240', '#252a4a', '#1a1e38'); }
   },
   {
     id: 'obj_crate',
@@ -404,7 +405,7 @@ const sceneObjects = [
     action: null,
     label: '',
     img: null,
-    draw(ctx, sx, sy) { drawIsoBox(ctx, sx, sy, this.w, this.h, '#1a2018', '#1f2820', '#161d14'); }
+    draw(ctx, cx, cy) { drawIsoBox(ctx, cx, cy, TILE_Z, '#1a2018', '#1f2820', '#161d14'); }
   }
 ];
 
@@ -415,47 +416,42 @@ loadImg('obj_crate',   'assets/obj_crate.png');
 // ============================================================
 // ISOMETRIC BOX DRAW HELPER (placeholder objects)
 // ============================================================
-function drawIsoBox(ctx, sx, sy, w, h, colTop, colLeft, colRight) {
-  const topH   = Math.round(h * 0.28);
-  const sideH  = h - topH;
-  const halfW  = w / 2;
+// cx, cy  = worldToScreen(wx, wy) - cam  (base diamond center, NOT sprite top-left)
+// zh      = screen height in pixels (worldUnits * TILE_Z)
+// All vertices derived from TILE_HALF_W / TILE_HALF_H — edges stay parallel to floor tiles
+function drawIsoBox(ctx, cx, cy, zh, colTop, colLeft, colRight) {
+  const W = TILE_HALF_W, H = TILE_HALF_H;
 
-  // Top face
-  ctx.beginPath();
-  ctx.moveTo(sx + halfW, sy);
-  ctx.lineTo(sx + w,     sy + topH * 0.5);
-  ctx.lineTo(sx + halfW, sy + topH);
-  ctx.lineTo(sx,         sy + topH * 0.5);
-  ctx.closePath();
-  ctx.fillStyle = colTop;
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 0.5;
-  ctx.stroke();
+  // Base diamond (same shape as a floor tile)
+  const bN = [cx,     cy - H     ]; // back corner
+  const bE = [cx + W, cy         ]; // right corner
+  const bS = [cx,     cy + H     ]; // front corner — nearest to viewer
+  const bW = [cx - W, cy         ]; // left corner
 
-  // Left face
-  ctx.beginPath();
-  ctx.moveTo(sx,         sy + topH * 0.5);
-  ctx.lineTo(sx + halfW, sy + topH);
-  ctx.lineTo(sx + halfW, sy + h);
-  ctx.lineTo(sx,         sy + h - sideH * 0.5);
-  ctx.closePath();
-  ctx.fillStyle = colLeft;
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.stroke();
+  // Top diamond — identical shape, lifted zh pixels straight up
+  const tN = [cx,     cy - H - zh];
+  const tE = [cx + W, cy     - zh];
+  const tS = [cx,     cy + H - zh];
+  const tW = [cx - W, cy     - zh];
 
-  // Right face
-  ctx.beginPath();
-  ctx.moveTo(sx + halfW, sy + topH);
-  ctx.lineTo(sx + w,     sy + topH * 0.5);
-  ctx.lineTo(sx + w,     sy + h - sideH * 0.5);
-  ctx.lineTo(sx + halfW, sy + h);
-  ctx.closePath();
-  ctx.fillStyle = colRight;
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.stroke();
+  function face(pts, fill, stroke) {
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+
+  // Left face  (world +Y side — screen left)
+  face([tW, tS, bS, bW], colLeft,  'rgba(255,255,255,0.06)');
+  // Right face (world +X side — screen right)
+  face([tE, tS, bS, bE], colRight, 'rgba(255,255,255,0.06)');
+  // Top face   (always drawn last — occludes both side faces)
+  face([tN, tE, tS, tW], colTop,   'rgba(255,255,255,0.10)');
 }
 
 // ============================================================
@@ -464,8 +460,6 @@ function drawIsoBox(ctx, sx, sy, w, h, colTop, colLeft, colRight) {
 const player = {
   wx: 7,
   wy: 7,
-  w: 28,
-  h: 18,
   facing: 'down',
   moving: false,
   animFrame: 0,
@@ -557,7 +551,6 @@ function updatePlayer() {
 
   // Touch joystick: screen-space drag → world diagonal movement
   if (joystick.active && (Math.abs(joystick.dx) > 0.1 || Math.abs(joystick.dy) > 0.1)) {
-    // screen right → world diagonal (+wx, -wy); screen down → (+wx, +wy)
     dwx += joystick.dx + joystick.dy;
     dwy += joystick.dy - joystick.dx;
     const ang = Math.atan2(joystick.dy, joystick.dx);
@@ -697,36 +690,55 @@ function drawPlayer(sx, sy) {
     return;
   }
 
-  // Placeholder: glowing gold isometric diamond
-  const pw = player.w;
-  const ph = player.h;
-  const grd = ctx.createRadialGradient(sx, sy - ph * 0.2, 2, sx, sy - ph * 0.2, pw * 0.8);
-  grd.addColorStop(0, 'rgba(255,220,80,0.95)');
-  grd.addColorStop(0.5, 'rgba(200,160,40,0.7)');
-  grd.addColorStop(1, 'rgba(160,120,20,0)');
+  // Placeholder — all dimensions from projection constants, zero hardcoded values
+  //
+  // fw / fh : footprint diamond, same scale factor on both axes
+  //           → ratio fw/fh = TILE_HALF_W/TILE_HALF_H = exact SSX tilt ratio
+  //           → footprint edges run parallel to floor tile edges
+  //
+  // zh      : body height, derived from TILE_Z only
+  //           → pure -Y offset on screen, no X drift
+  //           → independent of TILE_HALF_H (changing camera tilt never skews body height)
+  const fw = TILE_HALF_W * 0.36;
+  const fh = TILE_HALF_H * 0.36;
+  const zh = TILE_Z * 1.5;
+
+  // Floor footprint shadow
+  ctx.beginPath();
+  ctx.moveTo(sx,      sy - fh);
+  ctx.lineTo(sx + fw, sy);
+  ctx.lineTo(sx,      sy + fh);
+  ctx.lineTo(sx - fw, sy);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,180,0,0.13)';
+  ctx.fill();
+
+  // Body — vertical lozenge, apex at (sx, sy - zh): pure straight-up, no horizontal drift
+  const grd = ctx.createLinearGradient(sx, sy, sx, sy - zh);
+  grd.addColorStop(0,    'rgba(165,115,18,0.92)');
+  grd.addColorStop(0.42, 'rgba(242,192,48,0.97)');
+  grd.addColorStop(1,    'rgba(255,232,108,0.82)');
 
   ctx.beginPath();
-  ctx.moveTo(sx,       sy - ph);
-  ctx.lineTo(sx + pw,  sy - ph * 0.5);
-  ctx.lineTo(sx,       sy);
-  ctx.lineTo(sx - pw,  sy - ph * 0.5);
+  ctx.moveTo(sx,            sy - fh);
+  ctx.lineTo(sx + fw,       sy - fh - zh * 0.18);
+  ctx.lineTo(sx + fw * 0.4, sy - zh * 0.58);
+  ctx.lineTo(sx,            sy - zh);
+  ctx.lineTo(sx - fw * 0.4, sy - zh * 0.58);
+  ctx.lineTo(sx - fw,       sy - fh - zh * 0.18);
   ctx.closePath();
   ctx.fillStyle = grd;
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255,220,80,0.5)';
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(255,212,60,0.6)';
+  ctx.lineWidth = 0.8;
   ctx.stroke();
 
-  // Glow pulse
-  const t = Date.now() / 600;
-  const glowA = 0.08 + 0.06 * Math.sin(t);
+  // Apex pulse dot
+  const t = Date.now() / 700;
+  const gr = 2.5 + 1.5 * Math.sin(t);
   ctx.beginPath();
-  ctx.moveTo(sx,       sy - ph);
-  ctx.lineTo(sx + pw,  sy - ph * 0.5);
-  ctx.lineTo(sx,       sy);
-  ctx.lineTo(sx - pw,  sy - ph * 0.5);
-  ctx.closePath();
-  ctx.fillStyle = `rgba(255,230,100,${glowA})`;
+  ctx.arc(sx, sy - zh, gr, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,228,78,0.9)';
   ctx.fill();
 }
 
@@ -868,10 +880,10 @@ function drawDebugOverlay(renderList) {
     'DEBUG ON (` to toggle)',
     `TILE_HALF_W: ${TILE_HALF_W}`,
     `TILE_HALF_H: ${TILE_HALF_H}  ← SSX tilt (18-24)`,
+    `TILE_Z:      ${TILE_Z}`,
     `player:  wx=${player.wx.toFixed(2)} wy=${player.wy.toFixed(2)}`,
     `cam:     x=${cam.x.toFixed(0)} y=${cam.y.toFixed(0)}`,
     `facing:  ${player.facing}`,
-    `frame:   ${player.animFrame}`,
     `scale:   ${scale.toFixed(3)}`
   ].join('\n');
 }
@@ -908,19 +920,21 @@ function render() {
       const obj = sceneObjects.find(o => o.id === ent.id);
       if (!obj) continue;
       const { sx, sy } = worldToScreen(obj.worldX, obj.worldY);
-      const drawX = sx - cam.x - obj.w / 2;
-      const drawY = sy - cam.y - (obj.anchorY !== undefined ? obj.anchorY : obj.h);
+      const cx = sx - cam.x;
+      const cy = sy - cam.y;
 
       const imgKey = obj.id;
       if (assets[imgKey]) {
-        ctx.drawImage(assets[imgKey], drawX, drawY, obj.w, obj.h);
+        // PNG sprites: position by anchorY (pixel from sprite top to floor contact)
+        ctx.drawImage(assets[imgKey], cx - obj.w / 2, cy - obj.anchorY, obj.w, obj.h);
       } else {
-        obj.draw(ctx, drawX, drawY);
+        // Placeholder: pass base diamond center — drawIsoBox derives all vertices from projection
+        obj.draw(ctx, cx, cy);
       }
 
       // Interact prompt
       if (obj.interactable && obj === nearObj) {
-        drawInteractPrompt(sx - cam.x, drawY, obj.label);
+        drawInteractPrompt(cx, cy - TILE_HALF_H - TILE_Z, obj.label);
       }
     }
   }
