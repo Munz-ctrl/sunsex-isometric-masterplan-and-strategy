@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SUNSEX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: #05050a;
+    overflow: hidden;
+    font-family: 'Space Mono', monospace;
+  }
+
+  #game-wrap {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    cursor: none;
+  }
+
+  /* --- PASSWORD GATE --- */
+  #pw-gate {
+    position: fixed; inset: 0;
+    background: #05050a;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px;
+    z-index: 1000;
+  }
+  #pw-gate .title {
+    color: #f0ede8;
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(22px, 4vw, 38px);
+    letter-spacing: 0.18em;
+    font-weight: 700;
+  }
+  #pw-gate .sub {
+    color: rgba(240,237,232,0.4);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+  }
+  #pw-input {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(240,237,232,0.2);
+    color: #f0ede8;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    padding: 10px 20px;
+    text-align: center;
+    outline: none;
+    width: 200px;
+  }
+  #pw-input:focus { border-color: rgba(240,237,232,0.6); }
+  #pw-err {
+    color: rgba(240,100,100,0.8);
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.1em;
+    min-height: 14px;
+  }
+
+  /* --- POPUP OVERLAY --- */
+  #overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center; justify-content: center;
+    background: rgba(5,5,10,0.82);
+    z-index: 200;
+  }
+  #overlay.active { display: flex; }
+  .popup-box {
+    background: #0d0d1a;
+    border: 1px solid rgba(240,237,232,0.18);
+    color: #f0ede8;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    max-width: 480px;
+    width: 90%;
+    padding: 28px 28px 22px;
+    position: relative;
+  }
+  .popup-box h2 {
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    margin-bottom: 14px;
+    color: #f0ede8;
+  }
+  .popup-box p {
+    line-height: 1.8;
+    color: rgba(240,237,232,0.72);
+    font-size: 11px;
+  }
+  .popup-close {
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none;
+    color: rgba(240,237,232,0.5);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+  }
+  .popup-close:hover { color: #f0ede8; }
+
+  /* --- VIDEO OVERLAY --- */
+  #video-overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center; justify-content: center;
+    background: rgba(5,5,10,0.9);
+    z-index: 200;
+  }
+  #video-overlay.active { display: flex; }
+  #video-wrap {
+    position: relative;
+    width: 80%; max-width: 700px;
+    aspect-ratio: 16/9;
+    background: #000;
+  }
+  #video-wrap iframe {
+    width: 100%; height: 100%;
+    border: none;
+  }
+  #video-close {
+    position: absolute; top: -28px; right: 0;
+    background: none; border: none;
+    color: rgba(240,237,232,0.6);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+  }
+  #video-close:hover { color: #f0ede8; }
+
+  /* --- DEBUG OVERLAY --- */
+  #debug-panel {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(0,0,0,0.75);
+    color: rgba(240,237,232,0.8);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 10px 14px;
+    pointer-events: none;
+    line-height: 1.7;
+    display: none;
+    z-index: 100;
+    white-space: pre;
+  }
+
+  /* --- TOUCH CONTROLS --- */
+  #touch-controls {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    display: none;
+    z-index: 150;
+  }
+  @media (hover: none) and (pointer: coarse) {
+    #touch-controls { display: block; }
+  }
+  #joystick-zone {
+    position: absolute;
+    bottom: 40px; left: 40px;
+    width: 100px; height: 100px;
+    pointer-events: all;
+    touch-action: none;
+  }
+  #joystick-base {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(240,237,232,0.08);
+    border: 1px solid rgba(240,237,232,0.18);
+    position: relative;
+  }
+  #joystick-knob {
+    position: absolute;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: rgba(240,237,232,0.25);
+    border: 1px solid rgba(240,237,232,0.5);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none;
+  }
+  #interact-btn {
+    position: absolute;
+    bottom: 50px; right: 50px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: rgba(240,237,232,0.08);
+    border: 1px solid rgba(240,237,232,0.3);
+    color: #f0ede8;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    pointer-events: all;
+    touch-action: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* --- ROTATE OVERLAY --- */
+  #rotate-overlay {
+    position: fixed; inset: 0;
+    background: #05050a;
+    display: none;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px;
+    z-index: 2000;
+    color: #f0ede8;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+  @media (max-width: 600px) and (orientation: portrait) {
+    #rotate-overlay { display: flex; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="pw-gate">
+  <div class="title">SUNSEX</div>
+  <div class="sub">ACCESS RESTRICTED</div>
+  <input id="pw-input" type="password" placeholder="enter password" autocomplete="off" spellcheck="false">
+  <div id="pw-err"></div>
+</div>
+
+<!-- MAIN GAME WRAP -->
+<div id="game-wrap">
+  <canvas id="c"></canvas>
+
+  <!-- POPUP OVERLAY -->
+  <div id="overlay">
+    <div class="popup-box">
+      <button class="popup-close" id="popup-close-btn">[ESC]</button>
+      <h2 id="popup-title">OBJECT</h2>
+      <p id="popup-body">Lorem ipsum.</p>
+    </div>
+  </div>
+
+  <!-- VIDEO OVERLAY -->
+  <div id="video-overlay">
+    <div id="video-wrap">
+      <button id="video-close">[ESC] CLOSE</button>
+      <iframe id="yt-frame" src="" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <!-- DEBUG PANEL -->
+  <div id="debug-panel" id="debug-panel"></div>
+
+  <!-- TOUCH CONTROLS -->
+  <div id="touch-controls">
+    <div id="joystick-zone">
+      <div id="joystick-base">
+        <div id="joystick-knob"></div>
+      </div>
+    </div>
+    <button id="interact-btn">[ E ]</button>
+  </div>
+</div>
+
+<!-- ROTATE OVERLAY -->
+<div id="rotate-overlay">
+  <div>↻</div>
+  <div>ROTATE DEVICE</div>
+</div>
+
+<script>
+// ============================================================
+// SSX ISOMETRIC ENGINE v0.01
+// ============================================================
+// Camera tilt constants — TILE_HALF_H controls the 33° SSX tilt.
+// Standard isometric: TILE_HALF_H = 16 (2:1 ratio with TILE_HALF_W=32)
+// SSX tilt: TILE_HALF_H = 21 (~1.52:1) — tiles taller, more wall visible
+// Tune TILE_HALF_H between 18–24 to adjust tilt feel.
+const TILE_HALF_W = 32;
+const TILE_HALF_H = 21; // SSX 33° tilt — EDIT THIS TO TUNE CAMERA ANGLE
+
+const VIEW_W = 1068;
+const VIEW_H = 600;
+const WORLD_TILES = 14;
+const MOVE_SPEED = 0.06;
+const INTERACT_RANGE = 1.8;
+const FRAME_W = 32;
+const FRAME_H = 48;
+
+// ============================================================
+// PROJECTION
+// ============================================================
+function worldToScreen(wx, wy) {
+  return {
+    sx: (wx - wy) * TILE_HALF_W,
+    sy: (wx + wy) * TILE_HALF_H
+  };
+}
+
+function screenToWorld(sx, sy) {
+  return {
+    wx: (sx / TILE_HALF_W + sy / TILE_HALF_H) / 2,
+    wy: (sy / TILE_HALF_H - sx / TILE_HALF_W) / 2
+  };
+}
+
+// ============================================================
+// CANVAS SETUP
+// ============================================================
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+canvas.width = VIEW_W;
+canvas.height = VIEW_H;
+
+let scale = 1;
+function resizeGame() {
+  const wrap = document.getElementById('game-wrap');
+  const ww = wrap.clientWidth;
+  const wh = wrap.clientHeight;
+  scale = Math.min(ww / VIEW_W, wh / VIEW_H);
+  canvas.style.width  = (VIEW_W * scale) + 'px';
+  canvas.style.height = (VIEW_H * scale) + 'px';
+}
+window.addEventListener('resize', resizeGame);
+resizeGame();
+
+// ============================================================
+// CAMERA
+// ============================================================
+const cam = { x: 0, y: 0 };
+
+function updateCamera() {
+  const { sx, sy } = worldToScreen(player.wx, player.wy);
+  cam.x = sx - VIEW_W / 2;
+  cam.y = sy - VIEW_H / 2;
+
+  // World screen bounds: iso diamond extremes, not corners
+  // Left extreme: (0, WORLD_TILES), Right: (WORLD_TILES, 0)
+  // Top extreme:  (0, 0),           Bottom: (WORLD_TILES, WORLD_TILES)
+  const minSX = worldToScreen(0, WORLD_TILES).sx;
+  const maxSX = worldToScreen(WORLD_TILES, 0).sx;
+  const minSY = worldToScreen(0, 0).sy;
+  const maxSY = worldToScreen(WORLD_TILES, WORLD_TILES).sy;
+  cam.x = Math.max(minSX - VIEW_W * 0.15, Math.min(cam.x, maxSX - VIEW_W * 0.85));
+  cam.y = Math.max(minSY - VIEW_H * 0.15, Math.min(cam.y, maxSY - VIEW_H * 0.85));
+}
+
+// ============================================================
+// ASSET LOADING
+// ============================================================
+const assets = {};
+
+function loadImg(key, src) {
+  const img = new Image();
+  img.onload = () => { assets[key] = img; };
+  img.onerror = () => { assets[key] = null; };
+  img.src = src;
+}
+
+loadImg('base',       'assets/base.png');
+loadImg('spritesheet','assets/spritesheet.png');
+
+// ============================================================
+// SCENE OBJECTS
+// ============================================================
+const sceneObjects = [
+  {
+    id: 'obj_console',
+    worldX: 5, worldY: 3,
+    w: 80, h: 90,
+    anchorY: 78,
+    collision: { wx: 4.7, wy: 2.7, ww: 0.9, wh: 0.9 },
+    interactable: true,
+    action: 'info',
+    label: 'EXAMINE',
+    title: 'TERMINAL_01',
+    body: 'A dormant console. The screen flickers faintly.\n\nStatus: OFFLINE\nLast session: unknown\nMemory block: [corrupted]',
+    img: null,
+    draw(ctx, sx, sy) { drawIsoBox(ctx, sx, sy, this.w, this.h, '#1e2240', '#252a4a', '#1a1e38'); }
+  },
+  {
+    id: 'obj_crate',
+    worldX: 8, worldY: 8,
+    w: 60, h: 70,
+    anchorY: 60,
+    collision: { wx: 7.7, wy: 7.7, ww: 0.9, wh: 0.9 },
+    interactable: false,
+    action: null,
+    label: '',
+    img: null,
+    draw(ctx, sx, sy) { drawIsoBox(ctx, sx, sy, this.w, this.h, '#1a2018', '#1f2820', '#161d14'); }
+  }
+];
+
+// Load object PNGs if they exist
+loadImg('obj_console', 'assets/obj_console.png');
+loadImg('obj_crate',   'assets/obj_crate.png');
+
+// ============================================================
+// ISOMETRIC BOX DRAW HELPER (placeholder objects)
+// ============================================================
+function drawIsoBox(ctx, sx, sy, w, h, colTop, colLeft, colRight) {
+  const topH   = Math.round(h * 0.28);
+  const sideH  = h - topH;
+  const halfW  = w / 2;
+
+  // Top face
+  ctx.beginPath();
+  ctx.moveTo(sx + halfW, sy);
+  ctx.lineTo(sx + w,     sy + topH * 0.5);
+  ctx.lineTo(sx + halfW, sy + topH);
+  ctx.lineTo(sx,         sy + topH * 0.5);
+  ctx.closePath();
+  ctx.fillStyle = colTop;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+
+  // Left face
+  ctx.beginPath();
+  ctx.moveTo(sx,         sy + topH * 0.5);
+  ctx.lineTo(sx + halfW, sy + topH);
+  ctx.lineTo(sx + halfW, sy + h);
+  ctx.lineTo(sx,         sy + h - sideH * 0.5);
+  ctx.closePath();
+  ctx.fillStyle = colLeft;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.stroke();
+
+  // Right face
+  ctx.beginPath();
+  ctx.moveTo(sx + halfW, sy + topH);
+  ctx.lineTo(sx + w,     sy + topH * 0.5);
+  ctx.lineTo(sx + w,     sy + h - sideH * 0.5);
+  ctx.lineTo(sx + halfW, sy + h);
+  ctx.closePath();
+  ctx.fillStyle = colRight;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.stroke();
+}
+
+// ============================================================
+// PLAYER
+// ============================================================
+const player = {
+  wx: 7,
+  wy: 7,
+  w: 28,
+  h: 18,
+  facing: 'down',
+  moving: false,
+  animFrame: 0,
+  animTimer: 0,
+  ANIM_SPEED: 10
+};
+
+// ============================================================
+// INPUT
+// ============================================================
+const keys = {};
+window.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'Escape') closeAllOverlays();
+  if (e.code === 'KeyE')   tryInteract();
+  if (e.code === 'Backquote') toggleDebug();
+});
+window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+// ============================================================
+// TOUCH / VIRTUAL JOYSTICK
+// ============================================================
+const joystick = { active: false, dx: 0, dy: 0, startX: 0, startY: 0 };
+const JOYSTICK_RADIUS = 35;
+
+const joystickZone = document.getElementById('joystick-zone');
+const joystickKnob = document.getElementById('joystick-knob');
+
+joystickZone.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  const rect = joystickZone.getBoundingClientRect();
+  joystick.startX = rect.left + rect.width / 2;
+  joystick.startY = rect.top  + rect.height / 2;
+  joystick.active = true;
+}, { passive: false });
+
+joystickZone.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!joystick.active) return;
+  const t = e.touches[0];
+  let dx = t.clientX - joystick.startX;
+  let dy = t.clientY - joystick.startY;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if (dist > JOYSTICK_RADIUS) {
+    dx = dx / dist * JOYSTICK_RADIUS;
+    dy = dy / dist * JOYSTICK_RADIUS;
+  }
+  joystick.dx = dx / JOYSTICK_RADIUS;
+  joystick.dy = dy / JOYSTICK_RADIUS;
+  joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+}, { passive: false });
+
+function resetJoystick() {
+  joystick.active = false; joystick.dx = 0; joystick.dy = 0;
+  joystickKnob.style.transform = 'translate(-50%,-50%)';
+}
+joystickZone.addEventListener('touchend',    resetJoystick);
+joystickZone.addEventListener('touchcancel', resetJoystick);
+
+document.getElementById('interact-btn').addEventListener('touchstart', e => {
+  e.preventDefault();
+  tryInteract();
+}, { passive: false });
+
+// ============================================================
+// COLLISION
+// ============================================================
+function wouldCollide(nx, ny) {
+  if (nx < 0.3 || ny < 0.3 || nx > WORLD_TILES - 0.3 || ny > WORLD_TILES - 0.3) return true;
+  for (const obj of sceneObjects) {
+    if (!obj.collision) continue;
+    const c = obj.collision;
+    if (nx > c.wx && nx < c.wx + c.ww && ny > c.wy && ny < c.wy + c.wh) return true;
+  }
+  return false;
+}
+
+// ============================================================
+// MOVEMENT
+// ============================================================
+function updatePlayer() {
+  let dwx = 0, dwy = 0;
+
+  if (keys['KeyW']) { dwx -= 1; dwy -= 1; player.facing = 'up'; }
+  if (keys['KeyS']) { dwx += 1; dwy += 1; player.facing = 'down'; }
+  if (keys['KeyA']) { dwx -= 1; dwy += 1; player.facing = 'left'; }
+  if (keys['KeyD']) { dwx += 1; dwy -= 1; player.facing = 'right'; }
+
+  // Touch joystick: screen-space drag → world diagonal movement
+  if (joystick.active && (Math.abs(joystick.dx) > 0.1 || Math.abs(joystick.dy) > 0.1)) {
+    // screen right → world diagonal (+wx, -wy); screen down → (+wx, +wy)
+    dwx += joystick.dx + joystick.dy;
+    dwy += joystick.dy - joystick.dx;
+    const ang = Math.atan2(joystick.dy, joystick.dx);
+    if      (ang > -Math.PI*0.75 && ang < -Math.PI*0.25) player.facing = 'up';
+    else if (ang >  Math.PI*0.25 && ang <  Math.PI*0.75) player.facing = 'down';
+    else if (ang > -Math.PI*0.25 && ang <  Math.PI*0.25) player.facing = 'right';
+    else                                                  player.facing = 'left';
+  }
+
+  // Normalize diagonal
+  const len = Math.sqrt(dwx*dwx + dwy*dwy);
+  if (len > 0) {
+    dwx = dwx / len * MOVE_SPEED;
+    dwy = dwy / len * MOVE_SPEED;
+  }
+
+  player.moving = len > 0;
+
+  // Axis-separated collision
+  if (dwx !== 0) {
+    if (!wouldCollide(player.wx + dwx, player.wy)) player.wx += dwx;
+  }
+  if (dwy !== 0) {
+    if (!wouldCollide(player.wx, player.wy + dwy)) player.wy += dwy;
+  }
+
+  // Animation
+  if (player.moving) {
+    player.animTimer++;
+    if (player.animTimer >= player.ANIM_SPEED) {
+      player.animTimer = 0;
+      player.animFrame = player.animFrame === 0 ? 1 : 0;
+    }
+  } else {
+    player.animFrame = 0;
+  }
+}
+
+// ============================================================
+// INTERACTION
+// ============================================================
+function getNearbyObject() {
+  let best = null, bestDist = Infinity;
+  for (const obj of sceneObjects) {
+    if (!obj.interactable) continue;
+    const dx = obj.worldX - player.wx;
+    const dy = obj.worldY - player.wy;
+    const d = Math.sqrt(dx*dx + dy*dy);
+    if (d < INTERACT_RANGE && d < bestDist) { bestDist = d; best = obj; }
+  }
+  return best;
+}
+
+function tryInteract() {
+  const obj = getNearbyObject();
+  if (!obj) return;
+  if (obj.action === 'info' || obj.action === 'email') {
+    document.getElementById('popup-title').textContent = obj.title || obj.id;
+    document.getElementById('popup-body').textContent  = obj.body  || '';
+    document.getElementById('overlay').classList.add('active');
+  } else if (obj.action === 'video' && obj.videoId) {
+    document.getElementById('yt-frame').src =
+      `https://www.youtube.com/embed/${obj.videoId}?autoplay=1`;
+    document.getElementById('video-overlay').classList.add('active');
+  }
+}
+
+function closeAllOverlays() {
+  document.getElementById('overlay').classList.remove('active');
+  document.getElementById('video-overlay').classList.remove('active');
+  const frame = document.getElementById('yt-frame');
+  frame.src = '';
+}
+
+document.getElementById('popup-close-btn').addEventListener('click', closeAllOverlays);
+document.getElementById('video-close').addEventListener('click', closeAllOverlays);
+document.getElementById('overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('overlay')) closeAllOverlays();
+});
+
+// ============================================================
+// DEBUG
+// ============================================================
+let debugOn = false;
+function toggleDebug() { debugOn = !debugOn; }
+
+// ============================================================
+// DRAW: BACKGROUND / FLOOR GRID
+// ============================================================
+function drawBackground() {
+  ctx.fillStyle = '#05050a';
+  ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+  if (assets['base']) {
+    ctx.drawImage(assets['base'], 0, 0, VIEW_W, VIEW_H);
+    return;
+  }
+
+  // Procedural isometric floor grid reflecting SSX 33° tilt
+  for (let tx = 0; tx < WORLD_TILES; tx++) {
+    for (let ty = 0; ty < WORLD_TILES; ty++) {
+      const { sx, sy } = worldToScreen(tx, ty);
+      const col = (tx + ty) % 2 === 0 ? '#1a1a2e' : '#16213e';
+      drawIsoTile(ctx, sx - cam.x, sy - cam.y, col);
+    }
+  }
+}
+
+function drawIsoTile(ctx, cx, cy, fillColor) {
+  ctx.beginPath();
+  ctx.moveTo(cx,                cy - TILE_HALF_H);
+  ctx.lineTo(cx + TILE_HALF_W, cy);
+  ctx.lineTo(cx,                cy + TILE_HALF_H);
+  ctx.lineTo(cx - TILE_HALF_W, cy);
+  ctx.closePath();
+  ctx.fillStyle = fillColor;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+}
+
+// ============================================================
+// DRAW: PLAYER SPRITE / PLACEHOLDER
+// ============================================================
+function drawPlayer(sx, sy) {
+  const sheet = assets['spritesheet'];
+  if (sheet) {
+    const rowMap = { down: 0, up: 1, left: 2, right: 3 };
+    const row = rowMap[player.facing] || 0;
+    const col = player.animFrame;
+    ctx.drawImage(
+      sheet,
+      col * FRAME_W, row * FRAME_H, FRAME_W, FRAME_H,
+      sx - FRAME_W / 2, sy - FRAME_H, FRAME_W, FRAME_H
+    );
+    return;
+  }
+
+  // Placeholder: glowing gold isometric diamond
+  const pw = player.w;
+  const ph = player.h;
+  const grd = ctx.createRadialGradient(sx, sy - ph * 0.2, 2, sx, sy - ph * 0.2, pw * 0.8);
+  grd.addColorStop(0, 'rgba(255,220,80,0.95)');
+  grd.addColorStop(0.5, 'rgba(200,160,40,0.7)');
+  grd.addColorStop(1, 'rgba(160,120,20,0)');
+
+  ctx.beginPath();
+  ctx.moveTo(sx,       sy - ph);
+  ctx.lineTo(sx + pw,  sy - ph * 0.5);
+  ctx.lineTo(sx,       sy);
+  ctx.lineTo(sx - pw,  sy - ph * 0.5);
+  ctx.closePath();
+  ctx.fillStyle = grd;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,220,80,0.5)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Glow pulse
+  const t = Date.now() / 600;
+  const glowA = 0.08 + 0.06 * Math.sin(t);
+  ctx.beginPath();
+  ctx.moveTo(sx,       sy - ph);
+  ctx.lineTo(sx + pw,  sy - ph * 0.5);
+  ctx.lineTo(sx,       sy);
+  ctx.lineTo(sx - pw,  sy - ph * 0.5);
+  ctx.closePath();
+  ctx.fillStyle = `rgba(255,230,100,${glowA})`;
+  ctx.fill();
+}
+
+// ============================================================
+// DRAW: INTERACT PROMPT
+// ============================================================
+function drawInteractPrompt(sx, sy, label) {
+  const t = Date.now() / 500;
+  const alpha = 0.6 + 0.4 * Math.sin(t);
+  ctx.font = '9px Space Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+
+  const text = `[E] ${label}`;
+  const tw = ctx.measureText(text).width;
+  ctx.fillStyle = `rgba(0,0,0,${alpha * 0.55})`;
+  ctx.fillRect(sx - tw / 2 - 4, sy - 21, tw + 8, 13);
+
+  ctx.fillStyle = `rgba(240,237,232,${alpha})`;
+  ctx.fillText(text, sx, sy - 10);
+}
+
+// ============================================================
+// DRAW: SSX HUD
+// ============================================================
+function drawSSXHUD() {
+  const lines = [
+    'sunsex isometric v0.01',
+    `coord. [${player.wx.toFixed(3)}, ${player.wy.toFixed(3)}]`,
+    `memory: [scene-base-00001]`
+  ];
+  ctx.font = '10px Space Mono, monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'bottom';
+  const lineH = 14;
+  lines.forEach((line, i) => {
+    const y = VIEW_H - 10 - (lines.length - 1 - i) * lineH;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillText(line, 12, y + 1);
+    ctx.fillStyle = 'rgba(255,255,255,0.65)';
+    ctx.fillText(line, 12, y);
+  });
+}
+
+// ============================================================
+// DRAW: TOP HUD STRIP (room name)
+// ============================================================
+function drawTopHUD() {
+  ctx.fillStyle = 'rgba(5,5,10,0.6)';
+  ctx.fillRect(0, 0, VIEW_W, 28);
+  ctx.font = '10px Space Mono, monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(240,237,232,0.5)';
+  ctx.fillText('SCENE_01 / UNTITLED', 14, 14);
+  ctx.textAlign = 'right';
+  ctx.fillText('SUNSEX', VIEW_W - 14, 14);
+}
+
+// ============================================================
+// DRAW: BOTTOM ACTION HINT STRIP
+// ============================================================
+function drawBottomHint() {
+  const nearObj = getNearbyObject();
+  if (!nearObj) return;
+  const hint = `[E] ${nearObj.label || 'INTERACT'}`;
+  ctx.font = '10px Space Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillStyle = 'rgba(5,5,10,0.55)';
+  ctx.fillRect(VIEW_W / 2 - 80, VIEW_H - 26, 160, 20);
+  ctx.fillStyle = 'rgba(240,237,232,0.7)';
+  ctx.fillText(hint, VIEW_W / 2, VIEW_H - 10);
+}
+
+// ============================================================
+// DRAW: DEBUG OVERLAY
+// ============================================================
+function drawDebugOverlay(renderList) {
+  if (!debugOn) return;
+
+  // Grid lines
+  for (let t = 0; t <= WORLD_TILES; t++) {
+    const a = worldToScreen(t, 0);
+    const b = worldToScreen(t, WORLD_TILES);
+    ctx.beginPath();
+    ctx.moveTo(a.sx - cam.x, a.sy - cam.y);
+    ctx.lineTo(b.sx - cam.x, b.sy - cam.y);
+    ctx.strokeStyle = 'rgba(255,80,80,0.3)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    const c = worldToScreen(0, t);
+    const d = worldToScreen(WORLD_TILES, t);
+    ctx.beginPath();
+    ctx.moveTo(c.sx - cam.x, c.sy - cam.y);
+    ctx.lineTo(d.sx - cam.x, d.sy - cam.y);
+    ctx.strokeStyle = 'rgba(80,80,255,0.3)';
+    ctx.stroke();
+  }
+
+  // Collision rects
+  for (const obj of sceneObjects) {
+    if (!obj.collision) continue;
+    const c = obj.collision;
+    const corners = [
+      worldToScreen(c.wx,        c.wy),
+      worldToScreen(c.wx + c.ww, c.wy),
+      worldToScreen(c.wx + c.ww, c.wy + c.wh),
+      worldToScreen(c.wx,        c.wy + c.wh)
+    ];
+    ctx.beginPath();
+    ctx.moveTo(corners[0].sx - cam.x, corners[0].sy - cam.y);
+    for (let i = 1; i < corners.length; i++) {
+      ctx.lineTo(corners[i].sx - cam.x, corners[i].sy - cam.y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(255,200,0,0.7)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,200,0,0.08)';
+    ctx.fill();
+  }
+
+  // Depth key labels
+  ctx.font = '8px monospace';
+  ctx.textAlign = 'center';
+  for (const ent of renderList) {
+    const { sx, sy } = worldToScreen(ent.worldX || ent.wx, ent.worldY || ent.wy);
+    const label = `d:${((ent.worldX || ent.wx) + (ent.worldY || ent.wy)).toFixed(1)}`;
+    ctx.fillStyle = 'rgba(255,255,100,0.8)';
+    ctx.fillText(label, sx - cam.x, sy - cam.y - 5);
+  }
+
+  // Panel
+  const dbg = document.getElementById('debug-panel');
+  dbg.style.display = 'block';
+  dbg.textContent = [
+    'DEBUG ON (` to toggle)',
+    `TILE_HALF_W: ${TILE_HALF_W}`,
+    `TILE_HALF_H: ${TILE_HALF_H}  ← SSX tilt (18-24)`,
+    `player:  wx=${player.wx.toFixed(2)} wy=${player.wy.toFixed(2)}`,
+    `cam:     x=${cam.x.toFixed(0)} y=${cam.y.toFixed(0)}`,
+    `facing:  ${player.facing}`,
+    `frame:   ${player.animFrame}`,
+    `scale:   ${scale.toFixed(3)}`
+  ].join('\n');
+}
+
+// ============================================================
+// MAIN RENDER LOOP
+// ============================================================
+function render() {
+  // 1. Background
+  drawBackground();
+
+  // 2. Build render list: scene objects + player entity
+  const playerEnt = {
+    worldX: player.wx,
+    worldY: player.wy,
+    depthKey: player.wx + player.wy,
+    isPlayer: true
+  };
+  const renderList = [
+    ...sceneObjects.map(o => ({ ...o, depthKey: o.worldX + o.worldY })),
+    { ...playerEnt }
+  ];
+
+  // 3. Sort ascending by depthKey (lower = further back)
+  renderList.sort((a, b) => a.depthKey - b.depthKey);
+
+  // 4. Draw each entity
+  const nearObj = getNearbyObject();
+  for (const ent of renderList) {
+    if (ent.isPlayer) {
+      const { sx, sy } = worldToScreen(player.wx, player.wy);
+      drawPlayer(sx - cam.x, sy - cam.y);
+    } else {
+      const obj = sceneObjects.find(o => o.id === ent.id);
+      if (!obj) continue;
+      const { sx, sy } = worldToScreen(obj.worldX, obj.worldY);
+      const drawX = sx - cam.x - obj.w / 2;
+      const drawY = sy - cam.y - (obj.anchorY !== undefined ? obj.anchorY : obj.h);
+
+      const imgKey = obj.id;
+      if (assets[imgKey]) {
+        ctx.drawImage(assets[imgKey], drawX, drawY, obj.w, obj.h);
+      } else {
+        obj.draw(ctx, drawX, drawY);
+      }
+
+      // Interact prompt
+      if (obj.interactable && obj === nearObj) {
+        drawInteractPrompt(sx - cam.x, drawY, obj.label);
+      }
+    }
+  }
+
+  // 5. Debug overlay
+  drawDebugOverlay(renderList);
+
+  // 6. HUD layers
+  drawTopHUD();
+  drawSSXHUD();
+  drawBottomHint();
+
+  if (!debugOn) {
+    const dbg = document.getElementById('debug-panel');
+    dbg.style.display = 'none';
+  }
+}
+
+// ============================================================
+// GAME LOOP
+// ============================================================
+let gameRunning = false;
+
+function gameLoop() {
+  if (!gameRunning) return;
+  updatePlayer();
+  updateCamera();
+  render();
+  requestAnimationFrame(gameLoop);
+}
+
+// ============================================================
+// PASSWORD GATE
+// ============================================================
+const PW = 'ssx';
+
+function startGame() {
+  document.getElementById('pw-gate').style.display = 'none';
+  document.getElementById('game-wrap').style.display = 'flex';
+  gameRunning = true;
+  requestAnimationFrame(gameLoop);
+}
+
+(function initPasswordGate() {
+  if (sessionStorage.getItem('ssx_auth') === '1') {
+    startGame();
+    return;
+  }
+  document.getElementById('game-wrap').style.display = 'none';
+
+  const input = document.getElementById('pw-input');
+  const err   = document.getElementById('pw-err');
+
+  function attempt() {
+    if (input.value.toLowerCase() === PW) {
+      sessionStorage.setItem('ssx_auth', '1');
+      startGame();
+    } else {
+      err.textContent = 'ACCESS DENIED';
+      input.value = '';
+      setTimeout(() => { err.textContent = ''; }, 1500);
+    }
+  }
+
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+  input.focus();
+})();
+</script>
+</body>
+</html>
