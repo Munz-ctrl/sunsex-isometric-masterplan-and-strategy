@@ -645,7 +645,18 @@ function drawBackground() {
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
   if (assets['base']) {
-    ctx.drawImage(assets['base'], 0, 0, VIEW_W, VIEW_H);
+    // Anchor the background to the same world-space footprint as the
+    // procedural floor grid below, so it scrolls with the camera instead
+    // of sitting fixed on the canvas.
+    const minSX = worldToScreen(0, WORLD_TILES).sx;
+    const maxSX = worldToScreen(WORLD_TILES, 0).sx;
+    const minSY = worldToScreen(0, 0).sy;
+    const maxSY = worldToScreen(WORLD_TILES, WORLD_TILES).sy;
+    ctx.drawImage(
+      assets['base'],
+      minSX - cam.x, minSY - cam.y,
+      maxSX - minSX, maxSY - minSY
+    );
     return;
   }
 
