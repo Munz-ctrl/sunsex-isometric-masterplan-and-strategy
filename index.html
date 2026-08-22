@@ -10,7 +10,9 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body {
-    width: 100%; height: 100%;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh; /* mobile browsers: avoids reflow when the toolbar hides/shows */
     background: #05050a;
     overflow: hidden;
     font-family: 'Space Mono', monospace;
@@ -213,24 +215,6 @@
     display: flex; align-items: center; justify-content: center;
   }
 
-  /* --- ROTATE OVERLAY --- */
-  #rotate-overlay {
-    position: fixed; inset: 0;
-    background: #05050a;
-    display: none;
-    flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 16px;
-    z-index: 2000;
-    color: #f0ede8;
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    text-align: center;
-  }
-  @media (max-width: 600px) and (orientation: portrait) {
-    #rotate-overlay { display: flex; }
-  }
 </style>
 </head>
 <body>
@@ -278,12 +262,6 @@
   </div>
 </div>
 
-<!-- ROTATE OVERLAY -->
-<div id="rotate-overlay">
-  <div>↻</div>
-  <div>ROTATE DEVICE</div>
-</div>
-
 <script>
 // ============================================================
 // SSX ISOMETRIC ENGINE v0.01
@@ -293,11 +271,16 @@
 // SSX tilt: TILE_HALF_H = 21 (~1.52:1) — tiles taller, more wall visible
 // Tune TILE_HALF_H between 18–24 to adjust tilt feel.
 const TILE_HALF_W = 32;
-const TILE_HALF_H = 21; // SSX 33° tilt — EDIT THIS TO TUNE CAMERA ANGLE
+const TILE_HALF_H = 17; // SSX -33° tilt (locked spec) — was 16 (standard 2:1 iso), now matches the brand angle
 const TILE_Z      = 32; // pixels per world height unit — keep proportional to TILE_HALF_W
 
-const VIEW_W = 1068;
-const VIEW_H = 600;
+// VIEW_H is the anchor: how much vertical world stays visible, in any aspect ratio.
+// VIEW_W is now DERIVED from the live aspect ratio instead of fixed — this is what
+// makes portrait "zoom into a taller slice" and landscape "show the wide default"
+// using the SAME background asset, no separate exports needed.
+const VIEW_H_BASE = 600;
+let VIEW_W = 1068; // recalculated in resizeGame() on load/resize
+let VIEW_H = VIEW_H_BASE;
 const WORLD_TILES = 14;
 const MOVE_SPEED = 0.06;
 const INTERACT_RANGE = 1.8;
@@ -326,19 +309,37 @@ function screenToWorld(sx, sy) {
 // ============================================================
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
-canvas.width = VIEW_W;
-canvas.height = VIEW_H;
 
-let scale = 1;
+// Clamp how far VIEW_W can drift from VIEW_H so extreme aspect ratios (ultra-tall
+// phones, ultrawide monitors) don't reveal absurd amounts of world or crush it
+// down to nothing. Tune these two numbers as art direction dictates.
+const MIN_ASPECT = 0.5;   // tallest allowed portrait crop (narrower = more zoomed in)
+const MAX_ASPECT = 2.2;   // widest allowed landscape reveal
+
 function resizeGame() {
   const wrap = document.getElementById('game-wrap');
   const ww = wrap.clientWidth;
   const wh = wrap.clientHeight;
-  scale = Math.min(ww / VIEW_W, wh / VIEW_H);
-  canvas.style.width  = (VIEW_W * scale) + 'px';
-  canvas.style.height = (VIEW_H * scale) + 'px';
+  const dpr = window.devicePixelRatio || 1;
+
+  const liveAspect = Math.max(MIN_ASPECT, Math.min(ww / wh, MAX_ASPECT));
+  VIEW_H = VIEW_H_BASE;
+  VIEW_W = Math.round(VIEW_H * liveAspect);
+
+  // Backing buffer at full device pixel density for crisp photoreal assets —
+  // CSS size stays at the logical VIEW_W/VIEW_H, canvas buffer is scaled up by dpr.
+  canvas.width  = VIEW_W * dpr;
+  canvas.height = VIEW_H * dpr;
+  canvas.style.width  = ww + 'px';
+  canvas.style.height = wh + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
-window.addEventListener('resize', resizeGame);
+
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(resizeGame, 150);
+});
 resizeGame();
 
 // ============================================================
@@ -648,14 +649,17 @@ function drawBackground() {
     // Anchor the background to the same world-space footprint as the
     // procedural floor grid below, so it scrolls with the camera instead
     // of sitting fixed on the canvas.
+    const img = assets['base'];
     const minSX = worldToScreen(0, WORLD_TILES).sx;
     const maxSX = worldToScreen(WORLD_TILES, 0).sx;
     const minSY = worldToScreen(0, 0).sy;
-    const maxSY = worldToScreen(WORLD_TILES, WORLD_TILES).sy;
+    const destW = maxSX - minSX;
+    const destH = destW * (img.naturalHeight / img.naturalWidth);
+
     ctx.drawImage(
-      assets['base'],
+      img,
       minSX - cam.x, minSY - cam.y,
-      maxSX - minSX, maxSY - minSY
+      destW, destH
     );
     return;
   }
@@ -895,7 +899,8 @@ function drawDebugOverlay(renderList) {
     `player:  wx=${player.wx.toFixed(2)} wy=${player.wy.toFixed(2)}`,
     `cam:     x=${cam.x.toFixed(0)} y=${cam.y.toFixed(0)}`,
     `facing:  ${player.facing}`,
-    `scale:   ${scale.toFixed(3)}`
+    `view:    ${VIEW_W}x${VIEW_H} (aspect ${(VIEW_W/VIEW_H).toFixed(2)})`,
+    `dpr:     ${(window.devicePixelRatio || 1).toFixed(2)}`
   ].join('\n');
 }
 
