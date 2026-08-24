@@ -587,12 +587,35 @@ function wouldCollide(nx, ny) {
 // ============================================================
 // Shared angle-to-facing quadrant logic — takes a 2D vector in screen space
 // (x right, y down) and picks the closest of the 4 sprite directions.
+// Used as-is by the touch joystick, which already drags in genuine screen
+// space and has no aspect distortion to correct for.
 function facingFromAngle(dx, dy) {
   const ang = Math.atan2(dy, dx);
   if      (ang > -Math.PI*0.75 && ang < -Math.PI*0.25) return 'up';
   else if (ang >  Math.PI*0.25 && ang <  Math.PI*0.75) return 'down';
   else if (ang > -Math.PI*0.25 && ang <  Math.PI*0.25) return 'right';
   else                                                  return 'left';
+}
+
+// Keyboard-only facing: the screen-projected movement vector is squashed by
+// the tile's wide/short aspect ratio, so a diagonal built from one pure
+// horizontal world step and one pure vertical world step reads as a shallow,
+// mostly-horizontal angle instead of an even 45°. Dividing each screen-space
+// component back down by the tile's own half-width/half-height undoes that
+// squash for the purposes of this facing decision only — it does not touch
+// rendering, movement, world projection, or the tilt constant itself.
+// That correction lands every diagonal exactly on a vertical/horizontal
+// boundary, so ties resolve to the vertical direction (up/down).
+function facingFromKeyboardVector(dwx, dwy) {
+  const screenDx = (dwx - dwy) * TILE_HALF_W;
+  const screenDy = (dwx + dwy) * TILE_HALF_H;
+  const normDx = screenDx / TILE_HALF_W;
+  const normDy = screenDy / TILE_HALF_H;
+  const ang = Math.atan2(normDy, normDx);
+  if      (ang >= -Math.PI*0.75 && ang <= -Math.PI*0.25) return 'up';
+  else if (ang >=  Math.PI*0.25 && ang <=  Math.PI*0.75) return 'down';
+  else if (ang >  -Math.PI*0.25 && ang <   Math.PI*0.25) return 'right';
+  else                                                    return 'left';
 }
 
 function updatePlayer() {
@@ -603,13 +626,11 @@ function updatePlayer() {
   if (keys['KeyA']) { dwx -= 1; dwy += 1; }
   if (keys['KeyD']) { dwx += 1; dwy -= 1; }
 
-  // Resolve facing from the combined movement vector (projected to screen
-  // space, same as worldToScreen) rather than per-key, so two keys held
-  // together pick whichever direction the true diagonal is closest to.
+  // Resolve facing from the combined movement vector rather than per-key,
+  // so two keys held together pick whichever direction the true diagonal
+  // is closest to (aspect-corrected — see facingFromKeyboardVector).
   if (dwx !== 0 || dwy !== 0) {
-    const screenDx = (dwx - dwy) * TILE_HALF_W;
-    const screenDy = (dwx + dwy) * TILE_HALF_H;
-    player.facing = facingFromAngle(screenDx, screenDy);
+    player.facing = facingFromKeyboardVector(dwx, dwy);
   }
 
   // Touch joystick: screen-space drag → world diagonal movement
