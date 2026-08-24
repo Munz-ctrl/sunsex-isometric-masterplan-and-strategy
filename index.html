@@ -284,8 +284,17 @@ let VIEW_H = VIEW_H_BASE;
 const WORLD_TILES = 14;
 const MOVE_SPEED = 0.06;
 const INTERACT_RANGE = 1.8;
-const FRAME_W = 32;
-const FRAME_H = 48;
+const SPRITE_FRAME_W = 634;
+const SPRITE_FRAME_H = 793;
+
+const DIR_ROWS = { down: 0, up: 1, left: 2, right: 3 };
+const ANIM = {
+  idle: { frames: 3, speed: 14 },
+  walk: { frames: 8, speed: 6 }
+};
+
+const PLAYER_DISPLAY_H = 110; // on-screen height, decoupled from source res
+const PLAYER_DISPLAY_W = PLAYER_DISPLAY_H * (SPRITE_FRAME_W / SPRITE_FRAME_H);
 
 // ============================================================
 // PROJECTION
@@ -375,8 +384,9 @@ function loadImg(key, src) {
   img.src = src;
 }
 
-loadImg('base',       'assets/bg.png');
-loadImg('spritesheet','assets/spritesheet.png');
+loadImg('base',       'assets/basen.png');
+loadImg('idle_sheet',  'assets/idle_spritesheet.png');
+loadImg('walk_sheet',  'assets/walk_spritesheet.png');
 
 // ============================================================
 // SCENE OBJECTS
@@ -462,11 +472,42 @@ const player = {
   wx: 7,
   wy: 7,
   facing: 'down',
+  state: 'idle',    // 'idle' | 'walk'
   moving: false,
   animFrame: 0,
-  animTimer: 0,
-  ANIM_SPEED: 10
+  animTimer: 0
 };
+
+// ============================================================
+// NPC
+// ============================================================
+const npc = {
+  id: 'npc_01',
+  wx: 10,
+  wy: 5,
+  facing: 'down',
+  animFrame: 0,
+  animTimer: 0
+};
+
+function updateNpc(n) {
+  n.animTimer++;
+  if (n.animTimer >= ANIM.idle.speed) {
+    n.animTimer = 0;
+    n.animFrame = (n.animFrame + 1) % ANIM.idle.frames;
+  }
+}
+
+function drawNpc(n, sx, sy) {
+  const sheet = assets['idle_sheet'];
+  if (!sheet) return;
+  const row = DIR_ROWS[n.facing] || 0;
+  ctx.drawImage(
+    sheet,
+    n.animFrame * SPRITE_FRAME_W, row * SPRITE_FRAME_H, SPRITE_FRAME_W, SPRITE_FRAME_H,
+    sx - PLAYER_DISPLAY_W / 2, sy - PLAYER_DISPLAY_H, PLAYER_DISPLAY_W, PLAYER_DISPLAY_H
+  );
+}
 
 // ============================================================
 // INPUT
@@ -579,14 +620,17 @@ function updatePlayer() {
   }
 
   // Animation
-  if (player.moving) {
-    player.animTimer++;
-    if (player.animTimer >= player.ANIM_SPEED) {
-      player.animTimer = 0;
-      player.animFrame = player.animFrame === 0 ? 1 : 0;
-    }
-  } else {
+  const nextState = player.moving ? 'walk' : 'idle';
+  if (nextState !== player.state) {
+    player.state = nextState;
     player.animFrame = 0;
+    player.animTimer = 0;
+  }
+  const anim = ANIM[player.state];
+  player.animTimer++;
+  if (player.animTimer >= anim.speed) {
+    player.animTimer = 0;
+    player.animFrame = (player.animFrame + 1) % anim.frames;
   }
 }
 
@@ -692,15 +736,14 @@ function drawIsoTile(ctx, cx, cy, fillColor) {
 // DRAW: PLAYER SPRITE / PLACEHOLDER
 // ============================================================
 function drawPlayer(sx, sy) {
-  const sheet = assets['spritesheet'];
+  const sheet = assets[player.state === 'walk' ? 'walk_sheet' : 'idle_sheet'];
   if (sheet) {
-    const rowMap = { down: 0, up: 1, left: 2, right: 3 };
-    const row = rowMap[player.facing] || 0;
+    const row = DIR_ROWS[player.facing] || 0;
     const col = player.animFrame;
     ctx.drawImage(
       sheet,
-      col * FRAME_W, row * FRAME_H, FRAME_W, FRAME_H,
-      sx - FRAME_W / 2, sy - FRAME_H, FRAME_W, FRAME_H
+      col * SPRITE_FRAME_W, row * SPRITE_FRAME_H, SPRITE_FRAME_W, SPRITE_FRAME_H,
+      sx - PLAYER_DISPLAY_W / 2, sy - PLAYER_DISPLAY_H, PLAYER_DISPLAY_W, PLAYER_DISPLAY_H
     );
     return;
   }
@@ -918,9 +961,16 @@ function render() {
     depthKey: player.wx + player.wy,
     isPlayer: true
   };
+  const npcEnt = {
+    worldX: npc.wx,
+    worldY: npc.wy,
+    depthKey: npc.wx + npc.wy,
+    isNpc: true
+  };
   const renderList = [
     ...sceneObjects.map(o => ({ ...o, depthKey: o.worldX + o.worldY })),
-    { ...playerEnt }
+    { ...playerEnt },
+    { ...npcEnt }
   ];
 
   // 3. Sort ascending by depthKey (lower = further back)
@@ -932,6 +982,9 @@ function render() {
     if (ent.isPlayer) {
       const { sx, sy } = worldToScreen(player.wx, player.wy);
       drawPlayer(sx - cam.x, sy - cam.y);
+    } else if (ent.isNpc) {
+      const { sx, sy } = worldToScreen(npc.wx, npc.wy);
+      drawNpc(npc, sx - cam.x, sy - cam.y);
     } else {
       const obj = sceneObjects.find(o => o.id === ent.id);
       if (!obj) continue;
@@ -977,6 +1030,7 @@ let gameRunning = false;
 function gameLoop() {
   if (!gameRunning) return;
   updatePlayer();
+  updateNpc(npc);
   updateCamera();
   render();
   requestAnimationFrame(gameLoop);
