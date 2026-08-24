@@ -486,9 +486,11 @@ const npc = {
   wx: 10,
   wy: 8,
   facing: 'down',
+  image: 'assets/npc_idle_spritesheet.png',
   animFrame: 0,
   animTimer: 0
 };
+loadImg(npc.id, npc.image);
 
 function updateNpc(n) {
   n.animTimer++;
@@ -499,7 +501,7 @@ function updateNpc(n) {
 }
 
 function drawNpc(n, sx, sy) {
-  const sheet = assets['idle_sheet'];
+  const sheet = assets[n.id];
   if (!sheet) return;
   const row = DIR_ROWS[n.facing] || 0;
   ctx.drawImage(
