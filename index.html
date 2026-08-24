@@ -288,6 +288,14 @@ const SPRITE_FRAME_W = 634;
 const SPRITE_FRAME_H = 793;
 
 const DIR_ROWS = { down: 0, up: 1, left: 2, right: 3 };
+
+// Walk sheet: same 4 rows as DIR_ROWS in the same positions, plus 4 more
+// diagonal rows appended after them.
+const WALK_DIR_ROWS = {
+  down: 0, up: 1, left: 2, right: 3,
+  'down-right': 4, 'up-right': 5, 'up-left': 6, 'down-left': 7
+};
+
 const ANIM = {
   idle: { frames: 3, speed: 14 },
   walk: { frames: 8, speed: 6 }
@@ -471,7 +479,10 @@ function drawIsoBox(ctx, cx, cy, zh, colTop, colLeft, colRight) {
 const player = {
   wx: 7,
   wy: 7,
-  facing: 'down',
+  facing: 'down',      // 4-dir — used for idle only
+  walkFacing: 'down',  // 8-dir — used for walk only
+  lastFaceDx: 0,       // last screen-space movement vector, for collapsing
+  lastFaceDy: 1,       // walkFacing down to idle facing at the walk→idle transition
   state: 'idle',    // 'idle' | 'walk'
   moving: false,
   animFrame: 0,
@@ -585,10 +596,10 @@ function wouldCollide(nx, ny) {
 // ============================================================
 // MOVEMENT
 // ============================================================
-// Shared angle-to-facing quadrant logic — takes a 2D vector in screen space
-// (x right, y down) and picks the closest of the 4 sprite directions.
-// Used as-is by the touch joystick, which already drags in genuine screen
-// space and has no aspect distortion to correct for.
+// Original 4-way angle-to-facing quadrant logic — takes a 2D vector in
+// screen space (x right, y down) and picks the closest of the 4 sprite
+// directions. Kept completely unchanged; used only to collapse a walking
+// direction down to an idle facing at the walk→idle transition.
 function facingFromAngle(dx, dy) {
   const ang = Math.atan2(dy, dx);
   if      (ang > -Math.PI*0.75 && ang < -Math.PI*0.25) return 'up';
@@ -597,25 +608,17 @@ function facingFromAngle(dx, dy) {
   else                                                  return 'left';
 }
 
-// Keyboard-only facing: the screen-projected movement vector is squashed by
-// the tile's wide/short aspect ratio, so a diagonal built from one pure
-// horizontal world step and one pure vertical world step reads as a shallow,
-// mostly-horizontal angle instead of an even 45°. Dividing each screen-space
-// component back down by the tile's own half-width/half-height undoes that
-// squash for the purposes of this facing decision only — it does not touch
-// rendering, movement, world projection, or the tilt constant itself.
-// That correction lands every diagonal exactly on a vertical/horizontal
-// boundary, so ties resolve to the vertical direction (up/down).
-function facingFromKeyboardVector(dwx, dwy) {
-  const screenDx = (dwx - dwy) * TILE_HALF_W;
-  const screenDy = (dwx + dwy) * TILE_HALF_H;
-  const normDx = screenDx / TILE_HALF_W;
-  const normDy = screenDy / TILE_HALF_H;
-  const ang = Math.atan2(normDy, normDx);
-  if      (ang >= -Math.PI*0.75 && ang <= -Math.PI*0.25) return 'up';
-  else if (ang >=  Math.PI*0.25 && ang <=  Math.PI*0.75) return 'down';
-  else if (ang >  -Math.PI*0.25 && ang <   Math.PI*0.25) return 'right';
-  else                                                    return 'left';
+// Walking-only facing: true 8-way bucketing on the raw screen-projected
+// movement angle — no aspect correction, no tiebreak. 8 equal 45° wedges
+// centered on the compass directions are wide enough that every single-key
+// press and every two-key diagonal lands unambiguously in its own wedge.
+// Shared by keyboard (screen-projected vector) and the touch joystick
+// (genuine screen drag) so both resolve walking direction the same way.
+const WALK_OCTANTS = ['right', 'down-right', 'down', 'down-left', 'left', 'up-left', 'up', 'up-right'];
+function facing8FromAngle(dx, dy) {
+  const ang = Math.atan2(dy, dx);
+  const octant = ((Math.round(ang / (Math.PI / 4)) % 8) + 8) % 8;
+  return WALK_OCTANTS[octant];
 }
 
 function updatePlayer() {
@@ -626,18 +629,25 @@ function updatePlayer() {
   if (keys['KeyA']) { dwx -= 1; dwy += 1; }
   if (keys['KeyD']) { dwx += 1; dwy -= 1; }
 
-  // Resolve facing from the combined movement vector rather than per-key,
-  // so two keys held together pick whichever direction the true diagonal
-  // is closest to (aspect-corrected — see facingFromKeyboardVector).
+  // Resolve walk facing (8-way) from the combined movement vector, projected
+  // to screen space the same way worldToScreen does — raw angle, no aspect
+  // correction needed at 8 directions. Stash the vector too, so it can be
+  // collapsed to an idle facing later once movement stops.
   if (dwx !== 0 || dwy !== 0) {
-    player.facing = facingFromKeyboardVector(dwx, dwy);
+    const screenDx = (dwx - dwy) * TILE_HALF_W;
+    const screenDy = (dwx + dwy) * TILE_HALF_H;
+    player.walkFacing = facing8FromAngle(screenDx, screenDy);
+    player.lastFaceDx = screenDx;
+    player.lastFaceDy = screenDy;
   }
 
   // Touch joystick: screen-space drag → world diagonal movement
   if (joystick.active && (Math.abs(joystick.dx) > 0.1 || Math.abs(joystick.dy) > 0.1)) {
     dwx += joystick.dx + joystick.dy;
     dwy += joystick.dy - joystick.dx;
-    player.facing = facingFromAngle(joystick.dx, joystick.dy);
+    player.walkFacing = facing8FromAngle(joystick.dx, joystick.dy);
+    player.lastFaceDx = joystick.dx;
+    player.lastFaceDy = joystick.dy;
   }
 
   // Normalize diagonal
@@ -660,6 +670,13 @@ function updatePlayer() {
   // Animation
   const nextState = player.moving ? 'walk' : 'idle';
   if (nextState !== player.state) {
+    if (nextState === 'idle') {
+      // Collapse the last walking direction down to the nearest of the 4
+      // idle directions, using the original unchanged 4-way angle function.
+      // Computed once here, not recalculated while standing still, since
+      // there's no movement vector left to read once stopped.
+      player.facing = facingFromAngle(player.lastFaceDx, player.lastFaceDy);
+    }
     player.state = nextState;
     player.animFrame = 0;
     player.animTimer = 0;
@@ -776,7 +793,9 @@ function drawIsoTile(ctx, cx, cy, fillColor) {
 function drawPlayer(sx, sy) {
   const sheet = assets[player.state === 'walk' ? 'walk_sheet' : 'idle_sheet'];
   if (sheet) {
-    const row = DIR_ROWS[player.facing] || 0;
+    const row = player.state === 'walk'
+      ? (WALK_DIR_ROWS[player.walkFacing] || 0)
+      : (DIR_ROWS[player.facing] || 0);
     const col = player.animFrame;
     ctx.drawImage(
       sheet,
@@ -979,7 +998,7 @@ function drawDebugOverlay(renderList) {
     `TILE_Z:      ${TILE_Z}`,
     `player:  wx=${player.wx.toFixed(2)} wy=${player.wy.toFixed(2)}`,
     `cam:     x=${cam.x.toFixed(0)} y=${cam.y.toFixed(0)}`,
-    `facing:  ${player.facing}`,
+    `facing:  ${player.facing}  state=${player.state}  walk=${player.walkFacing}`,
     `view:    ${VIEW_W}x${VIEW_H} (aspect ${(VIEW_W/VIEW_H).toFixed(2)})`,
     `dpr:     ${(window.devicePixelRatio || 1).toFixed(2)}`
   ].join('\n');
