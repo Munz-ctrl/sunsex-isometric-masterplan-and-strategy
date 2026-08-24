@@ -583,23 +583,38 @@ function wouldCollide(nx, ny) {
 // ============================================================
 // MOVEMENT
 // ============================================================
+// Shared angle-to-facing quadrant logic — takes a 2D vector in screen space
+// (x right, y down) and picks the closest of the 4 sprite directions.
+function facingFromAngle(dx, dy) {
+  const ang = Math.atan2(dy, dx);
+  if      (ang > -Math.PI*0.75 && ang < -Math.PI*0.25) return 'up';
+  else if (ang >  Math.PI*0.25 && ang <  Math.PI*0.75) return 'down';
+  else if (ang > -Math.PI*0.25 && ang <  Math.PI*0.25) return 'right';
+  else                                                  return 'left';
+}
+
 function updatePlayer() {
   let dwx = 0, dwy = 0;
 
-  if (keys['KeyW']) { dwx -= 1; dwy -= 1; player.facing = 'up'; }
-  if (keys['KeyS']) { dwx += 1; dwy += 1; player.facing = 'down'; }
-  if (keys['KeyA']) { dwx -= 1; dwy += 1; player.facing = 'left'; }
-  if (keys['KeyD']) { dwx += 1; dwy -= 1; player.facing = 'right'; }
+  if (keys['KeyW']) { dwx -= 1; dwy -= 1; }
+  if (keys['KeyS']) { dwx += 1; dwy += 1; }
+  if (keys['KeyA']) { dwx -= 1; dwy += 1; }
+  if (keys['KeyD']) { dwx += 1; dwy -= 1; }
+
+  // Resolve facing from the combined movement vector (projected to screen
+  // space, same as worldToScreen) rather than per-key, so two keys held
+  // together pick whichever direction the true diagonal is closest to.
+  if (dwx !== 0 || dwy !== 0) {
+    const screenDx = (dwx - dwy) * TILE_HALF_W;
+    const screenDy = (dwx + dwy) * TILE_HALF_H;
+    player.facing = facingFromAngle(screenDx, screenDy);
+  }
 
   // Touch joystick: screen-space drag → world diagonal movement
   if (joystick.active && (Math.abs(joystick.dx) > 0.1 || Math.abs(joystick.dy) > 0.1)) {
     dwx += joystick.dx + joystick.dy;
     dwy += joystick.dy - joystick.dx;
-    const ang = Math.atan2(joystick.dy, joystick.dx);
-    if      (ang > -Math.PI*0.75 && ang < -Math.PI*0.25) player.facing = 'up';
-    else if (ang >  Math.PI*0.25 && ang <  Math.PI*0.75) player.facing = 'down';
-    else if (ang > -Math.PI*0.25 && ang <  Math.PI*0.25) player.facing = 'right';
-    else                                                  player.facing = 'left';
+    player.facing = facingFromAngle(joystick.dx, joystick.dy);
   }
 
   // Normalize diagonal
