@@ -266,13 +266,52 @@
 // ============================================================
 // SSX ISOMETRIC ENGINE v0.01
 // ============================================================
-// Camera tilt constants — TILE_HALF_H controls the 33° SSX tilt.
-// Standard isometric: TILE_HALF_H = 16 (2:1 ratio with TILE_HALF_W=32)
-// SSX tilt: TILE_HALF_H = 21 (~1.52:1) — tiles taller, more wall visible
-// Tune TILE_HALF_H between 18–24 to adjust tilt feel.
-const TILE_HALF_W = 32;
-const TILE_HALF_H = 17; // SSX -33° tilt (locked spec) — was 16 (standard 2:1 iso), now matches the brand angle
-const TILE_Z      = 32; // pixels per world height unit — keep proportional to TILE_HALF_W
+// Camera tilt constants — BASE_TILE_HALF_H controls the 33° SSX tilt.
+// Standard isometric: 16 (2:1 ratio with BASE_TILE_HALF_W=32)
+// SSX tilt: 21 (~1.52:1) — tiles taller, more wall visible.
+// These are the UNSCALED base values; per-room size is room.worldScale below.
+const BASE_TILE_HALF_W = 32;
+const BASE_TILE_HALF_H = 17; // SSX -33° tilt (locked spec) — was 16 (standard 2:1 iso), now matches the brand angle
+const BASE_TILE_Z      = 32; // pixels per world height unit — keep proportional to BASE_TILE_HALF_W
+
+// ============================================================
+// PER-ROOM SCALE  ── the "size everything against the background" dial
+// ============================================================
+// room.worldScale multiplies EVERYTHING that lives in world space — the floor
+// grid, the player & NPC sprites, and every scene prop — but NEVER the
+// background image. Raise it to make subjects and walk-space read BIGGER
+// against a given room photo; lower it to make the playfield a smaller island
+// sitting inside a larger scene. Set it once per room.
+//
+// room.bgScale controls the background on its own axis:
+//   null  → auto-fit the background width to the grid footprint. This is the
+//           legacy behaviour: background stays locked to grid size, so the two
+//           always match and worldScale drags the background along with it.
+//   <num> → explicit multiplier of the image's natural pixel size (1 = native,
+//           0.5 = half). THIS is what decouples the background from the grid —
+//           once set, changing worldScale no longer touches the background.
+// room.bgOffsetX / bgOffsetY nudge the background in screen px for alignment.
+const room = {
+  bg:        'assets/basen.png',
+  worldScale: 1.0,
+  bgScale:    null,
+  bgOffsetX:  0,
+  bgOffsetY:  0,
+};
+
+// Live projection values — recomputed by applyRoomScale() from BASE_* × room.worldScale.
+// Everything downstream (worldToScreen, camera, sprites, props) reads these.
+let TILE_HALF_W, TILE_HALF_H, TILE_Z;
+let PLAYER_DISPLAY_H, PLAYER_DISPLAY_W;
+
+function applyRoomScale() {
+  const s = room.worldScale || 1;
+  TILE_HALF_W = BASE_TILE_HALF_W * s;
+  TILE_HALF_H = BASE_TILE_HALF_H * s;
+  TILE_Z      = BASE_TILE_Z * s;
+  PLAYER_DISPLAY_H = BASE_PLAYER_DISPLAY_H * s;
+  PLAYER_DISPLAY_W = PLAYER_DISPLAY_H * (SPRITE_FRAME_W / SPRITE_FRAME_H);
+}
 
 // VIEW_H is the anchor: how much vertical world stays visible, in any aspect ratio.
 // VIEW_W is now DERIVED from the live aspect ratio instead of fixed — this is what
@@ -301,8 +340,8 @@ const ANIM = {
   walk: { frames: 8, speed: 6 }
 };
 
-const PLAYER_DISPLAY_H = 110; // on-screen height, decoupled from source res
-const PLAYER_DISPLAY_W = PLAYER_DISPLAY_H * (SPRITE_FRAME_W / SPRITE_FRAME_H);
+const BASE_PLAYER_DISPLAY_H = 110; // on-screen height at worldScale 1, decoupled from source res
+applyRoomScale(); // seed TILE_HALF_W/H, TILE_Z, PLAYER_DISPLAY_W/H from room.worldScale
 
 // ============================================================
 // PROJECTION
@@ -392,7 +431,7 @@ function loadImg(key, src) {
   img.src = src;
 }
 
-loadImg('base',       'assets/basen.png');
+loadImg('base',       room.bg);
 loadImg('idle_sheet',  'assets/islespt1.png');
 loadImg('walk_sheet',  'assets/wstt2.png');
 
@@ -531,6 +570,28 @@ window.addEventListener('keydown', e => {
   if (e.code === 'Escape') closeAllOverlays();
   if (e.code === 'KeyE')   tryInteract();
   if (e.code === 'Backquote') toggleDebug();
+
+  // --- live room-scale tuning (see the `room` config near the top) ---
+  //  [ ]           : shrink / grow room.worldScale  (grid + sprites + props)
+  //  Shift + [ ]   : shrink / grow room.bgScale     (background only)
+  //  \             : reset both to defaults
+  if (e.code === 'BracketRight' || e.code === 'BracketLeft') {
+    const dir = e.code === 'BracketRight' ? 1 : -1;
+    if (e.shiftKey) {
+      if (room.bgScale == null) room.bgScale = currentBgScale();
+      room.bgScale = Math.max(0.05, +(room.bgScale + dir * 0.02).toFixed(4));
+    } else {
+      room.worldScale = Math.max(0.2, Math.min(3, +(room.worldScale + dir * 0.05).toFixed(3)));
+      applyRoomScale();
+    }
+  }
+  if (e.code === 'Backslash') {
+    room.worldScale = 1.0;
+    room.bgScale = null;
+    room.bgOffsetX = 0;
+    room.bgOffsetY = 0;
+    applyRoomScale();
+  }
 });
 window.addEventListener('keyup', e => { keys[e.code] = false; });
 
@@ -740,24 +801,36 @@ function toggleDebug() { debugOn = !debugOn; }
 // ============================================================
 // DRAW: BACKGROUND / FLOOR GRID
 // ============================================================
+// Effective background scale: explicit room.bgScale if set, otherwise the
+// auto-fit value that matches the current grid footprint width (legacy look).
+function currentBgScale() {
+  const img = assets['base'];
+  if (!img) return 1;
+  if (room.bgScale != null) return room.bgScale;
+  const gridW = worldToScreen(WORLD_TILES, 0).sx - worldToScreen(0, WORLD_TILES).sx;
+  return gridW / img.naturalWidth;
+}
+
 function drawBackground() {
   ctx.fillStyle = '#05050a';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
   if (assets['base']) {
-    // Anchor the background to the same world-space footprint as the
-    // procedural floor grid below, so it scrolls with the camera instead
-    // of sitting fixed on the canvas.
+    // Background is anchored to the CENTRE of the world (room mid-tile) so it
+    // still scrolls 1:1 with the camera and feels like the same physical
+    // space — but its SIZE is driven by currentBgScale(), independent of the
+    // grid once room.bgScale is set. That is the decoupling: worldScale can
+    // shrink the grid to an island while this image stays put.
     const img = assets['base'];
-    const minSX = worldToScreen(0, WORLD_TILES).sx;
-    const maxSX = worldToScreen(WORLD_TILES, 0).sx;
-    const minSY = worldToScreen(0, 0).sy;
-    const destW = maxSX - minSX;
-    const destH = destW * (img.naturalHeight / img.naturalWidth);
+    const bs = currentBgScale();
+    const destW = img.naturalWidth  * bs;
+    const destH = img.naturalHeight * bs;
+    const c = worldToScreen(WORLD_TILES / 2, WORLD_TILES / 2);
 
     ctx.drawImage(
       img,
-      minSX - cam.x, minSY - cam.y,
+      c.sx - cam.x - destW / 2 + room.bgOffsetX,
+      c.sy - cam.y - destH / 2 + room.bgOffsetY,
       destW, destH
     );
     return;
@@ -993,9 +1066,11 @@ function drawDebugOverlay(renderList) {
   dbg.style.display = 'block';
   dbg.textContent = [
     'DEBUG ON (` to toggle)',
-    `TILE_HALF_W: ${TILE_HALF_W}`,
-    `TILE_HALF_H: ${TILE_HALF_H}  ← SSX tilt (18-24)`,
-    `TILE_Z:      ${TILE_Z}`,
+    `worldScale:  ${room.worldScale.toFixed(2)}  ([ ] to tune, \\ reset)`,
+    `bgScale:     ${currentBgScale().toFixed(3)}${room.bgScale == null ? ' (auto-fit)' : ''}  (Shift+[ ])`,
+    `TILE_HALF_W: ${TILE_HALF_W.toFixed(1)}`,
+    `TILE_HALF_H: ${TILE_HALF_H.toFixed(1)}`,
+    `TILE_Z:      ${TILE_Z.toFixed(1)}`,
     `player:  wx=${player.wx.toFixed(2)} wy=${player.wy.toFixed(2)}`,
     `cam:     x=${cam.x.toFixed(0)} y=${cam.y.toFixed(0)}`,
     `facing:  ${player.facing}  state=${player.state}  walk=${player.walkFacing}`,
@@ -1051,8 +1126,11 @@ function render() {
 
       const imgKey = obj.id;
       if (assets[imgKey]) {
-        // PNG sprites: position by anchorY (pixel from sprite top to floor contact)
-        ctx.drawImage(assets[imgKey], cx - obj.w / 2, cy - obj.anchorY, obj.w, obj.h);
+        // PNG sprites: position by anchorY (pixel from sprite top to floor
+        // contact). obj.w/h/anchorY are authored at worldScale 1, so scale
+        // them here to keep props sized with the grid and the player.
+        const os = room.worldScale || 1;
+        ctx.drawImage(assets[imgKey], cx - obj.w * os / 2, cy - obj.anchorY * os, obj.w * os, obj.h * os);
       } else {
         // Placeholder: pass base diamond center — drawIsoBox derives all vertices from projection
         obj.draw(ctx, cx, cy);
